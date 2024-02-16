@@ -1,7 +1,6 @@
 {
     "name": "html-squircle",
     "version": "1.0.0",
-    "private": true,
     "description": "Functions for generating superellipse squircles in the form of SVG strings, to be used as clip-path and background inline styles.",
     "keywords": [
         "squircle",

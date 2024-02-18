@@ -1,4 +1,14 @@
 /* eslint-disable typescript-sort-keys/interface */
+import {
+    $prop_join,
+    $prop_map,
+    $prop_max,
+    $prop_min,
+    $prop_random,
+    $ref_encodeURIComponent,
+    $ref_Math
+} from "eslint-config-terser-no-domprops/vars"
+
 interface SquircleOptionalParams {
     /**
      * How long the curve should be, expressed as a fraction of the shortest side. Minimum zero,
@@ -53,17 +63,15 @@ type BackgroundSquircler = (
     params: SquircleParams
 ) => `url("data:image/svg+xml,${string}") left top no-repeat`
 
-// eslint-disable-next-line no-restricted-properties
-const { min, max, random } = Math
-
 const getCurveSpec = (
     width: number,
     height: number,
     curveLength: number,
     curveSharpness: number
 ): [number, number] => {
-    const shortestSide = min(width, height)
-    const curveLengthShift = shortestSide * min(0.5, max(0, curveLength))
+    const shortestSide = $ref_Math[$prop_min](width, height)
+    const curveLengthShift =
+        shortestSide * $ref_Math[$prop_min](0.5, $ref_Math[$prop_max](0, curveLength))
     const curveSharpnessShift = curveLengthShift * curveSharpness
 
     return [curveLengthShift, curveSharpnessShift]
@@ -75,7 +83,6 @@ const getPath = (
     curveLengthShift: number,
     curveSharpnessShift: number
 ): string =>
-    // eslint-disable-next-line no-restricted-properties
     [
         "M",
         0,
@@ -126,7 +133,7 @@ const getPath = (
         curveLengthShift,
 
         "Z"
-    ].join(" ")
+    ][$prop_join](" ")
 
 export const newSquirclers = ({
     curveLength: defaultCurveLength = 5 / 16,
@@ -169,19 +176,18 @@ export const newSquirclers = ({
         const d = getPath(bgWidth, bgHeight, curveLengthShift, curveSharpnessShift)
 
         const isStroked = svgStroke !== "none" && svgStrokeWidth !== 0
-        const clipId = isStroked ? `i${random()}` : ""
+        const clipId = isStroked ? `i${$ref_Math[$prop_random]()}` : ""
         const clip = isStroked ? `<clipPath id='${clipId}'><path d='${d}'/></clipPath>` : ""
 
         const isGradient = typeof svgBackground === "object"
-        const gradientId = isGradient ? `i${random()}` : ""
+        const gradientId = isGradient ? `i${$ref_Math[$prop_random]()}` : ""
         const gradient = isGradient
-            ? // eslint-disable-next-line no-restricted-properties
-              `<linearGradient id='${gradientId}' gradientTransform='rotate(${svgBackground.gradientAngle ?? 0})'>${svgBackground.stops
-                  .map(
-                      (stop) =>
-                          `<stop offset='${stop.stopOffset}' stop-color='${stop.gradientColor}' />`
-                  )
-                  .join("")}</linearGradient>`
+            ? `<linearGradient id='${gradientId}' gradientTransform='rotate(${svgBackground.gradientAngle ?? 0})'>${svgBackground.stops[
+                  $prop_map
+              ](
+                  (stop) =>
+                      `<stop offset='${stop.stopOffset}' stop-color='${stop.gradientColor}' />`
+              )[$prop_join]("")}</linearGradient>`
             : ""
 
         const defs = `<defs>${clip}${gradient}</defs>`
@@ -194,7 +200,7 @@ export const newSquirclers = ({
 
         const path = `<path ${applyClip} ${applyFill} ${applyStroke} d='${d}'/>`
         const svg = `<svg width='${bgWidth}px' height='${bgHeight}px' xmlns='http://www.w3.org/2000/svg'>${defs}${path}</svg>`
-        const encodedSvg = encodeURIComponent(svg)
+        const encodedSvg = $ref_encodeURIComponent(svg)
 
         return `url("data:image/svg+xml,${encodedSvg}") left top no-repeat`
     }

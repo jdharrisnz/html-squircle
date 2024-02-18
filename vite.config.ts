@@ -9,6 +9,9 @@ const config: UserConfig = {
             name: "bg-squircle",
             fileName: "index"
         },
+        rollupOptions: {
+            external: ["eslint-config-terser-no-domprops/vars"]
+        },
         outDir: "dist",
         minify: false
     }

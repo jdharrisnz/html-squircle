@@ -1,0 +1,44 @@
+{
+    "name": "html-squircle",
+    "version": "1.0.3",
+    "description": "Functions for generating superellipse squircles in the form of SVG strings, to be used as clip-path and background inline styles.",
+    "keywords": [
+        "squircle",
+        "superellipse",
+        "smooth-corners"
+    ],
+    "homepage": "https://github.com/jdharrisnz/html-squircle#readme",
+    "bugs": {
+        "url": "https://github.com/jdharrisnz/html-squircle/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/jdharrisnz/html-squircle.git"
+    },
+    "license": "GPL-3.0",
+    "author": "Josh Harris",
+    "type": "module",
+    "main": "dist/index.umd.cjs",
+    "module": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "files": [
+        "./dist"
+    ],
+    "scripts": {
+        "build": "vite build && tsc",
+        "dev": "vite",
+        "preview": "vite preview"
+    },
+    "devDependencies": {
+        "@types/node": "^20.11.5",
+        "eslint": "^8.56.0",
+        "eslint-config-airbnb-base": "^15.0.0",
+        "eslint-config-airbnb-typescript-base": "^5.0.1",
+        "eslint-config-prettier": "^9.1.0",
+        "eslint-config-terser-no-domprops": "^1.3.2",
+        "prettier": "^3.2.4",
+        "prettier-plugin-jsdoc": "^1.3.0",
+        "typescript": "^5.2.2",
+        "vite": "^5.0.8"
+    }
+}

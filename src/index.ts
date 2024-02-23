@@ -1,14 +1,21 @@
+/* eslint-disable no-restricted-properties */
+/* eslint-disable no-restricted-globals */
 /* eslint-disable typescript-sort-keys/interface */
 interface SquircleOptionalParams {
     /**
      * How long the curve should be, expressed as a fraction of the shortest side. Minimum zero,
      * maximum 0.5.
+     *
+     * In SVG, affects the position of the point where the curve begins.
      */
     curveLength?: number
 
     /**
      * How tightly the curve should take the corner, expressed as a fraction of the `curveLength`.
-     * Positive numbers mean sharper, negative numbers mean smoother.
+     * Positive numbers mean sharper, negative numbers mean smoother. Minimum -1, maximum 1. Values
+     * above 0.3 usually result in right angles.
+     *
+     * In SVG, affects the length of the curve's control handle.
      */
     curveSharpness?: number
 
@@ -53,6 +60,17 @@ type BackgroundSquircler = (
     params: SquircleParams
 ) => `url("data:image/svg+xml,${string}") left top no-repeat`
 
+/**
+ * To get a constant curve length, supply the result of this function to the `curveLength` parameter
+ * of either of the squircle functions. This is subject to the minimum and maximum lengths that stop
+ * the SVG from going wonky.
+ *
+ * This length is defined in pixels, but bear in mind the length of the squircle's curve is visually
+ * quite different to `border-radius` from CSS, which you might be more used to.
+ */
+export const getConstantCurveLength = (pixelLength: number, width: number, height: number) =>
+    pixelLength / Math.min(width, height)
+
 export const newSquirclers = ({
     curveLength: defaultCurveLength = 5 / 16,
     curveSharpness: defaultCurveSharpness = -0.2,
@@ -60,8 +78,8 @@ export const newSquirclers = ({
     svgStroke: defaultSvgStroke = "none",
     svgStrokeWidth: defaultSvgStrokeWidth = 1
 }: SquircleOptionalParams = {}): [ClipSquircler, BackgroundSquircler] => {
-    // eslint-disable-next-line no-restricted-properties, @typescript-eslint/unbound-method, no-restricted-globals
-    const { min, max, random } = Math
+    const clamp = (value: number, minimum: number, maximum: number): number =>
+        Math.min(maximum, Math.max(value, minimum))
 
     const getCurveSpec = (
         width: number,
@@ -69,9 +87,9 @@ export const newSquirclers = ({
         curveLength: number,
         curveSharpness: number
     ): [number, number] => {
-        const shortestSide = min(width, height)
-        const curveLengthShift = shortestSide * min(0.5, max(0, curveLength))
-        const curveSharpnessShift = curveLengthShift * curveSharpness
+        const shortestSide = Math.min(width, height)
+        const curveLengthShift = shortestSide * clamp(curveLength, 0, 0.5)
+        const curveSharpnessShift = curveLengthShift * clamp(curveSharpness, -1, 1)
 
         return [curveLengthShift, curveSharpnessShift]
     }
@@ -82,7 +100,6 @@ export const newSquirclers = ({
         curveLengthShift: number,
         curveSharpnessShift: number
     ): string =>
-        // eslint-disable-next-line no-restricted-properties
         [
             "M",
             0,
@@ -160,6 +177,17 @@ export const newSquirclers = ({
             svgStroke = defaultSvgStroke,
             svgStrokeWidth = defaultSvgStrokeWidth
         }) => {
+            const tag = (
+                tagName: keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap,
+                attributes: Record<string, string | number>,
+                ...children: string[]
+            ): string =>
+                `<${tagName}${Object.entries(attributes)
+                    .map(([key, value]) => ` ${key}='${value}'`)
+                    .join("")}>${children.join("")}</${tagName}>`
+
+            const getId = (): `i${number}` => `i${Math.random()}`
+
             const [curveLengthShift, curveSharpnessShift] = getCurveSpec(
                 bgWidth,
                 bgHeight,
@@ -170,34 +198,48 @@ export const newSquirclers = ({
             const d = getPath(bgWidth, bgHeight, curveLengthShift, curveSharpnessShift)
 
             const isStroked = svgStroke !== "none" && svgStrokeWidth !== 0
-            const clipId = isStroked ? `i${random()}` : ""
-            const clip = isStroked ? `<clipPath id='${clipId}'><path d='${d}'/></clipPath>` : ""
+            const clipId = isStroked ? getId() : ""
 
             const isGradient = typeof svgBackground === "object"
-            const gradientId = isGradient ? `i${random()}` : ""
-            const gradient = isGradient
-                ? `<linearGradient id='${gradientId}' gradientTransform='rotate(${svgBackground.gradientAngle ?? 0})'>${
-                      // eslint-disable-next-line no-restricted-properties
-                      svgBackground.stops
-                          .map(
-                              (stop) =>
-                                  `<stop offset='${stop.stopOffset}' stop-color='${stop.gradientColor}' />`
+            const gradientId = isGradient ? getId() : ""
+
+            const svg = tag(
+                "svg",
+                {
+                    xmlns: "http://www.w3.org/2000/svg",
+                    width: `${bgWidth}px`,
+                    height: `${bgHeight}px`
+                },
+                tag(
+                    "defs",
+                    {},
+                    isStroked ? tag("clipPath", { id: clipId }, tag("path", { d })) : "",
+                    isGradient
+                        ? tag(
+                              "linearGradient",
+                              {
+                                  id: gradientId,
+                                  gradientTransform: `rotate(${svgBackground.gradientAngle ?? 0})`
+                              },
+                              ...svgBackground.stops.map(({ stopOffset, gradientColor }) =>
+                                  tag("stop", { offset: stopOffset, "stop-color": gradientColor })
+                              )
                           )
-                          .join("")
-                  }</linearGradient>`
-                : ""
+                        : ""
+                ),
+                tag("path", {
+                    ...(isStroked
+                        ? {
+                              "clip-path": `url(#${clipId})`,
+                              stroke: svgStroke,
+                              "stroke-width": `${svgStrokeWidth * 2}px`
+                          }
+                        : {}),
+                    fill: isGradient ? `url(#${gradientId})` : svgBackground,
+                    d
+                })
+            )
 
-            const defs = `<defs>${clip}${gradient}</defs>`
-
-            const applyClip = isStroked ? `clip-path='url(#${clipId})'` : ""
-            const applyFill = `fill='${isGradient ? `url(#${gradientId})` : svgBackground}'`
-            const applyStroke = isStroked
-                ? `stroke='${svgStroke}' stroke-width='${svgStrokeWidth * 2}px'`
-                : ""
-
-            const path = `<path ${applyClip} ${applyFill} ${applyStroke} d='${d}'/>`
-            const svg = `<svg width='${bgWidth}px' height='${bgHeight}px' xmlns='http://www.w3.org/2000/svg'>${defs}${path}</svg>`
-            // eslint-disable-next-line no-restricted-globals
             const encodedSvg = encodeURIComponent(svg)
 
             return `url("data:image/svg+xml,${encodedSvg}") left top no-repeat`

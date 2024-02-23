@@ -10,7 +10,7 @@ const config: UserConfig = {
             fileName: "index"
         },
         outDir: "dist",
-        minify: false
+        minify: true
     }
 }
 

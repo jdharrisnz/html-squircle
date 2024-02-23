@@ -1,117 +1,124 @@
-const newSquirclers = ({
-  curveLength: defaultCurveLength = 5 / 16,
-  curveSharpness: defaultCurveSharpness = -0.2,
-  svgBackground: defaultSvgBackground = "#fff",
-  svgStroke: defaultSvgStroke = "none",
-  svgStrokeWidth: defaultSvgStrokeWidth = 1
+const w = (a, p, m) => a / Math.min(p, m), f = ({
+  curveLength: a = 0.3125,
+  curveSharpness: p = -0.2,
+  svgBackground: m = "#fff",
+  svgStroke: k = "none",
+  svgStrokeWidth: y = 1
 } = {}) => {
-  const { min, max, random } = Math;
-  const getCurveSpec = (width, height, curveLength, curveSharpness) => {
-    const shortestSide = min(width, height);
-    const curveLengthShift = shortestSide * min(0.5, max(0, curveLength));
-    const curveSharpnessShift = curveLengthShift * curveSharpness;
-    return [curveLengthShift, curveSharpnessShift];
-  };
-  const getPath = (width, height, curveLengthShift, curveSharpnessShift) => (
-    // eslint-disable-next-line no-restricted-properties
-    [
-      "M",
-      0,
-      height - curveLengthShift,
-      "C",
-      0,
-      height + curveSharpnessShift,
-      -curveSharpnessShift,
-      height,
-      curveLengthShift,
-      height,
-      "L",
-      width - curveLengthShift,
-      height,
-      "C",
-      width + curveSharpnessShift,
-      height,
-      width,
-      height + curveSharpnessShift,
-      width,
-      height - curveLengthShift,
-      "L",
-      width,
-      curveLengthShift,
-      "C",
-      width,
-      -curveSharpnessShift,
-      width + curveSharpnessShift,
-      0,
-      width - curveLengthShift,
-      0,
-      "L",
-      curveLengthShift,
-      0,
-      "C",
-      -curveSharpnessShift,
-      0,
-      0,
-      -curveSharpnessShift,
-      0,
-      curveLengthShift,
-      "Z"
-    ].join(" ")
-  );
+  const M = (o, n, t) => Math.min(t, Math.max(o, n)), j = (o, n, t, s) => {
+    const e = Math.min(o, n) * M(t, 0, 0.5), l = e * M(s, -1, 1);
+    return [e, l];
+  }, i = (o, n, t, s) => [
+    "M",
+    0,
+    n - t,
+    "C",
+    0,
+    n + s,
+    -s,
+    n,
+    t,
+    n,
+    "L",
+    o - t,
+    n,
+    "C",
+    o + s,
+    n,
+    o,
+    n + s,
+    o,
+    n - t,
+    "L",
+    o,
+    t,
+    "C",
+    o,
+    -s,
+    o + s,
+    0,
+    o - t,
+    0,
+    "L",
+    t,
+    0,
+    "C",
+    -s,
+    0,
+    0,
+    -s,
+    0,
+    t,
+    "Z"
+  ].join(" ");
   return [
     ({
-      bgWidth,
-      bgHeight,
-      curveLength = defaultCurveLength,
-      curveSharpness = defaultCurveSharpness
+      bgWidth: o,
+      bgHeight: n,
+      curveLength: t = a,
+      curveSharpness: s = p
     }) => {
-      const [curveLengthShift, curveSharpnessShift] = getCurveSpec(
-        bgWidth,
-        bgHeight,
-        curveLength,
-        curveSharpness
+      const [c, e] = j(
+        o,
+        n,
+        t,
+        s
       );
-      return `path('${getPath(bgWidth, bgHeight, curveLengthShift, curveSharpnessShift)}')`;
+      return `path('${i(o, n, c, e)}')`;
     },
     ({
-      bgWidth,
-      bgHeight,
-      curveLength = defaultCurveLength,
-      curveSharpness = defaultCurveSharpness,
-      svgBackground = defaultSvgBackground,
-      svgStroke = defaultSvgStroke,
-      svgStrokeWidth = defaultSvgStrokeWidth
+      bgWidth: o,
+      bgHeight: n,
+      curveLength: t = a,
+      curveSharpness: s = p,
+      svgBackground: c = m,
+      svgStroke: e = k,
+      svgStrokeWidth: l = y
     }) => {
-      const [curveLengthShift, curveSharpnessShift] = getCurveSpec(
-        bgWidth,
-        bgHeight,
-        curveLength,
-        curveSharpness
+      const r = ($, C, ...T) => `<${$}${Object.entries(C).map(([U, Z]) => ` ${U}='${Z}'`).join("")}>${T.join("")}</${$}>`, I = () => `i${Math.random()}`, [A, O] = j(
+        o,
+        n,
+        t,
+        s
+      ), q = i(o, n, A, O), d = e !== "none" && l !== 0, G = d ? I() : "", x = typeof c == "object", P = x ? I() : "", R = r(
+        "svg",
+        {
+          xmlns: "http://www.w3.org/2000/svg",
+          width: `${o}px`,
+          height: `${n}px`
+        },
+        r(
+          "defs",
+          {},
+          d ? r("clipPath", { id: G }, r("path", { d: q })) : "",
+          x ? r(
+            "linearGradient",
+            {
+              id: P,
+              gradientTransform: `rotate(${c.gradientAngle ?? 0})`
+            },
+            ...c.stops.map(
+              ({ stopOffset: $, gradientColor: C }) => r("stop", { offset: $, "stop-color": C })
+            )
+          ) : ""
+        ),
+        r("path", {
+          ...d ? {
+            "clip-path": `url(#${G})`,
+            stroke: e,
+            "stroke-width": `${l * 2}px`
+          } : {},
+          fill: x ? `url(#${P})` : c,
+          d: q
+        })
       );
-      const d = getPath(bgWidth, bgHeight, curveLengthShift, curveSharpnessShift);
-      const isStroked = svgStroke !== "none" && svgStrokeWidth !== 0;
-      const clipId = isStroked ? `i${random()}` : "";
-      const clip = isStroked ? `<clipPath id='${clipId}'><path d='${d}'/></clipPath>` : "";
-      const isGradient = typeof svgBackground === "object";
-      const gradientId = isGradient ? `i${random()}` : "";
-      const gradient = isGradient ? `<linearGradient id='${gradientId}' gradientTransform='rotate(${svgBackground.gradientAngle ?? 0})'>${// eslint-disable-next-line no-restricted-properties
-      svgBackground.stops.map(
-        (stop) => `<stop offset='${stop.stopOffset}' stop-color='${stop.gradientColor}' />`
-      ).join("")}</linearGradient>` : "";
-      const defs = `<defs>${clip}${gradient}</defs>`;
-      const applyClip = isStroked ? `clip-path='url(#${clipId})'` : "";
-      const applyFill = `fill='${isGradient ? `url(#${gradientId})` : svgBackground}'`;
-      const applyStroke = isStroked ? `stroke='${svgStroke}' stroke-width='${svgStrokeWidth * 2}px'` : "";
-      const path = `<path ${applyClip} ${applyFill} ${applyStroke} d='${d}'/>`;
-      const svg = `<svg width='${bgWidth}px' height='${bgHeight}px' xmlns='http://www.w3.org/2000/svg'>${defs}${path}</svg>`;
-      const encodedSvg = encodeURIComponent(svg);
-      return `url("data:image/svg+xml,${encodedSvg}") left top no-repeat`;
+      return `url("data:image/svg+xml,${encodeURIComponent(R)}") left top no-repeat`;
     }
   ];
-};
-const [clipSquircle, bgSquircle] = newSquirclers();
+}, [z, D] = f();
 export {
-  bgSquircle,
-  clipSquircle,
-  newSquirclers
+  D as bgSquircle,
+  z as clipSquircle,
+  w as getConstantCurveLength,
+  f as newSquirclers
 };

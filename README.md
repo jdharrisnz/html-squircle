@@ -5,9 +5,13 @@ superellipse squircles (smooth, rounded shapes) that can be used as SVG clip pat
 for web elements. This package is perfect for developers looking to add modern, beautifully-rounded
 corners to the web with minimal effort.
 
+![Screenshot of the nicely-rounded corners this package can generate.](example.png)
+
 ## Features
 
--   Generate squircles as SVG strings.
+-   Generate squircles as SVG strings for use in `clip-path` or `background` inline styles.
+-   Unlike a true superellipse, transitions gracefully into straight edges, making it suitable for
+    UI elements of various sizes.
 -   Customizable curve length, curve sharpness, background (solid color or gradient), stroke color,
     and stroke width.
 -   Easy to use with any web framework or vanilla JavaScript.
@@ -52,3 +56,7 @@ The `clipSquircle` and `bgSquircle` exports provide Apple-like default values to
 background white, with no stroke, and stroke width 1px. To create a pair of functions with defaults
 adhering to your own design system, use the `newSquirclers` export and supply it with your own
 preferences.
+
+There is also the `getConstantCurveLength` export, which you can use as an input to the
+`curveLength` parameter to define a curve length in pixels that will not change in response to the
+size of the element.

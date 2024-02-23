@@ -71,180 +71,189 @@ type BackgroundSquircler = (
 export const getConstantCurveLength = (pixelLength: number, width: number, height: number) =>
     pixelLength / Math.min(width, height)
 
-export const newSquirclers = ({
-    curveLength: defaultCurveLength = 5 / 16,
-    curveSharpness: defaultCurveSharpness = -0.2,
-    svgBackground: defaultSvgBackground = "#fff",
-    svgStroke: defaultSvgStroke = "none",
-    svgStrokeWidth: defaultSvgStrokeWidth = 1
-}: SquircleOptionalParams = {}): [ClipSquircler, BackgroundSquircler] => {
-    const clamp = (value: number, minimum: number, maximum: number): number =>
-        Math.min(maximum, Math.max(value, minimum))
+const clamp = (value: number, minimum: number, maximum: number): number =>
+    Math.min(maximum, Math.max(value, minimum))
 
-    const getCurveSpec = (
-        width: number,
-        height: number,
-        curveLength: number,
-        curveSharpness: number
-    ): [number, number] => {
-        const shortestSide = Math.min(width, height)
-        const curveLengthShift = shortestSide * clamp(curveLength, 0, 0.5)
-        const curveSharpnessShift = curveLengthShift * clamp(curveSharpness, -1, 1)
+const getCurveSpec = (
+    width: number,
+    height: number,
+    curveLength: number,
+    curveSharpness: number
+): [number, number] => {
+    const shortestSide = Math.min(width, height)
+    const curveLengthShift = shortestSide * clamp(curveLength, 0, 0.5)
+    const curveSharpnessShift = curveLengthShift * clamp(curveSharpness, -1, 1)
 
-        return [curveLengthShift, curveSharpnessShift]
-    }
-
-    const getPath = (
-        width: number,
-        height: number,
-        curveLengthShift: number,
-        curveSharpnessShift: number
-    ): string =>
-        [
-            "M",
-            0,
-            height - curveLengthShift,
-
-            "C",
-            0,
-            height + curveSharpnessShift,
-            -curveSharpnessShift,
-            height,
-            curveLengthShift,
-            height,
-
-            "L",
-            width - curveLengthShift,
-            height,
-
-            "C",
-            width + curveSharpnessShift,
-            height,
-            width,
-            height + curveSharpnessShift,
-            width,
-            height - curveLengthShift,
-
-            "L",
-            width,
-            curveLengthShift,
-
-            "C",
-            width,
-            -curveSharpnessShift,
-            width + curveSharpnessShift,
-            0,
-            width - curveLengthShift,
-            0,
-
-            "L",
-            curveLengthShift,
-            0,
-
-            "C",
-            -curveSharpnessShift,
-            0,
-            0,
-            -curveSharpnessShift,
-            0,
-            curveLengthShift,
-
-            "Z"
-        ].join(" ")
-
-    return [
-        ({
-            bgWidth,
-            bgHeight,
-            curveLength = defaultCurveLength,
-            curveSharpness = defaultCurveSharpness
-        }) => {
-            const [curveLengthShift, curveSharpnessShift] = getCurveSpec(
-                bgWidth,
-                bgHeight,
-                curveLength,
-                curveSharpness
-            )
-
-            return `path('${getPath(bgWidth, bgHeight, curveLengthShift, curveSharpnessShift)}')`
-        },
-        ({
-            bgWidth,
-            bgHeight,
-            curveLength = defaultCurveLength,
-            curveSharpness = defaultCurveSharpness,
-            svgBackground = defaultSvgBackground,
-            svgStroke = defaultSvgStroke,
-            svgStrokeWidth = defaultSvgStrokeWidth
-        }) => {
-            const tag = (
-                tagName: keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap,
-                attributes: Record<string, string | number>,
-                ...children: string[]
-            ): string =>
-                `<${tagName}${Object.entries(attributes)
-                    .map(([key, value]) => ` ${key}='${value}'`)
-                    .join("")}>${children.join("")}</${tagName}>`
-
-            const getId = (): `i${number}` => `i${Math.random()}`
-
-            const [curveLengthShift, curveSharpnessShift] = getCurveSpec(
-                bgWidth,
-                bgHeight,
-                curveLength,
-                curveSharpness
-            )
-
-            const d = getPath(bgWidth, bgHeight, curveLengthShift, curveSharpnessShift)
-
-            const isStroked = svgStroke !== "none" && svgStrokeWidth !== 0
-            const clipId = isStroked ? getId() : ""
-
-            const isGradient = typeof svgBackground === "object"
-            const gradientId = isGradient ? getId() : ""
-
-            const svg = tag(
-                "svg",
-                {
-                    xmlns: "http://www.w3.org/2000/svg",
-                    width: `${bgWidth}px`,
-                    height: `${bgHeight}px`
-                },
-                tag(
-                    "defs",
-                    {},
-                    isStroked ? tag("clipPath", { id: clipId }, tag("path", { d })) : "",
-                    isGradient
-                        ? tag(
-                              "linearGradient",
-                              {
-                                  id: gradientId,
-                                  gradientTransform: `rotate(${svgBackground.gradientAngle ?? 0})`
-                              },
-                              ...svgBackground.stops.map(({ stopOffset, gradientColor }) =>
-                                  tag("stop", { offset: stopOffset, "stop-color": gradientColor })
-                              )
-                          )
-                        : ""
-                ),
-                tag("path", {
-                    ...(isStroked
-                        ? {
-                              "clip-path": `url(#${clipId})`,
-                              stroke: svgStroke,
-                              "stroke-width": `${svgStrokeWidth * 2}px`
-                          }
-                        : {}),
-                    fill: isGradient ? `url(#${gradientId})` : svgBackground,
-                    d
-                })
-            )
-
-            const encodedSvg = encodeURIComponent(svg)
-
-            return `url("data:image/svg+xml,${encodedSvg}") left top no-repeat`
-        }
-    ]
+    return [curveLengthShift, curveSharpnessShift]
 }
 
-export const [clipSquircle, bgSquircle] = newSquirclers()
+const getPath = (
+    width: number,
+    height: number,
+    curveLengthShift: number,
+    curveSharpnessShift: number
+): string =>
+    [
+        "M",
+        0,
+        height - curveLengthShift,
+
+        "C",
+        0,
+        height + curveSharpnessShift,
+        -curveSharpnessShift,
+        height,
+        curveLengthShift,
+        height,
+
+        "L",
+        width - curveLengthShift,
+        height,
+
+        "C",
+        width + curveSharpnessShift,
+        height,
+        width,
+        height + curveSharpnessShift,
+        width,
+        height - curveLengthShift,
+
+        "L",
+        width,
+        curveLengthShift,
+
+        "C",
+        width,
+        -curveSharpnessShift,
+        width + curveSharpnessShift,
+        0,
+        width - curveLengthShift,
+        0,
+
+        "L",
+        curveLengthShift,
+        0,
+
+        "C",
+        -curveSharpnessShift,
+        0,
+        0,
+        -curveSharpnessShift,
+        0,
+        curveLengthShift,
+
+        "Z"
+    ].join(" ")
+
+export const newClipSquircler =
+    ({
+        curveLength: defaultCurveLength = 5 / 16,
+        curveSharpness: defaultCurveSharpness = -0.2
+    }: Omit<
+        SquircleOptionalParams,
+        "svgBackground" | "svgStroke" | "svgStrokeWidth"
+    > = {}): ClipSquircler =>
+    ({
+        bgWidth,
+        bgHeight,
+        curveLength = defaultCurveLength,
+        curveSharpness = defaultCurveSharpness
+    }) => {
+        const [curveLengthShift, curveSharpnessShift] = getCurveSpec(
+            bgWidth,
+            bgHeight,
+            curveLength,
+            curveSharpness
+        )
+
+        return `path('${getPath(bgWidth, bgHeight, curveLengthShift, curveSharpnessShift)}')`
+    }
+
+export const newBgSquircler =
+    ({
+        curveLength: defaultCurveLength = 5 / 16,
+        curveSharpness: defaultCurveSharpness = -0.2,
+        svgBackground: defaultSvgBackground = "#fff",
+        svgStroke: defaultSvgStroke = "none",
+        svgStrokeWidth: defaultSvgStrokeWidth = 1
+    }: SquircleOptionalParams = {}): BackgroundSquircler =>
+    ({
+        bgWidth,
+        bgHeight,
+        curveLength = defaultCurveLength,
+        curveSharpness = defaultCurveSharpness,
+        svgBackground = defaultSvgBackground,
+        svgStroke = defaultSvgStroke,
+        svgStrokeWidth = defaultSvgStrokeWidth
+    }) => {
+        const tag = (
+            tagName: keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap,
+            attributes: Record<string, string | number>,
+            ...children: string[]
+        ): string =>
+            `<${tagName}${Object.entries(attributes)
+                .map(([key, value]) => ` ${key}='${value}'`)
+                .join("")}>${children.join("")}</${tagName}>`
+
+        const getId = (): `i${number}` => `i${Math.random()}`
+
+        const [curveLengthShift, curveSharpnessShift] = getCurveSpec(
+            bgWidth,
+            bgHeight,
+            curveLength,
+            curveSharpness
+        )
+
+        const d = getPath(bgWidth, bgHeight, curveLengthShift, curveSharpnessShift)
+
+        const isStroked = svgStroke !== "none" && svgStrokeWidth !== 0
+        const clipId = isStroked ? getId() : ""
+
+        const isGradient = typeof svgBackground === "object"
+        const gradientId = isGradient ? getId() : ""
+
+        const svg = tag(
+            "svg",
+            {
+                xmlns: "http://www.w3.org/2000/svg",
+                width: `${bgWidth}px`,
+                height: `${bgHeight}px`
+            },
+            tag(
+                "defs",
+                {},
+                isStroked ? tag("clipPath", { id: clipId }, tag("path", { d })) : "",
+                isGradient
+                    ? tag(
+                          "linearGradient",
+                          {
+                              id: gradientId,
+                              gradientTransform: `rotate(${svgBackground.gradientAngle ?? 0})`
+                          },
+                          ...svgBackground.stops.map(({ stopOffset, gradientColor }) =>
+                              tag("stop", { offset: stopOffset, "stop-color": gradientColor })
+                          )
+                      )
+                    : ""
+            ),
+            tag("path", {
+                ...(isStroked
+                    ? {
+                          "clip-path": `url(#${clipId})`,
+                          stroke: svgStroke,
+                          "stroke-width": `${svgStrokeWidth * 2}px`
+                      }
+                    : {}),
+                fill: isGradient ? `url(#${gradientId})` : svgBackground,
+                d
+            })
+        )
+
+        const encodedSvg = encodeURIComponent(svg)
+
+        return `url("data:image/svg+xml,${encodedSvg}") left top no-repeat`
+    }
+
+export const clipSquircle = newClipSquircler()
+
+export const bgSquircle = newBgSquircler()

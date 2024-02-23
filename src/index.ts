@@ -71,15 +71,15 @@ type BackgroundSquircler = (
 export const getConstantCurveLength = (pixelLength: number, width: number, height: number) =>
     pixelLength / Math.min(width, height)
 
-const clamp = (value: number, minimum: number, maximum: number): number =>
-    Math.min(maximum, Math.max(value, minimum))
-
 const getCurveSpec = (
     width: number,
     height: number,
     curveLength: number,
     curveSharpness: number
 ): [number, number] => {
+    const clamp = (value: number, minimum: number, maximum: number): number =>
+        Math.min(maximum, Math.max(value, minimum))
+
     const shortestSide = Math.min(width, height)
     const curveLengthShift = shortestSide * clamp(curveLength, 0, 0.5)
     const curveSharpnessShift = curveLengthShift * clamp(curveSharpness, -1, 1)

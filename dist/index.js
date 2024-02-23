@@ -1,124 +1,122 @@
-const w = (a, p, m) => a / Math.min(p, m), f = ({
-  curveLength: a = 0.3125,
-  curveSharpness: p = -0.2,
-  svgBackground: m = "#fff",
-  svgStroke: k = "none",
-  svgStrokeWidth: y = 1
-} = {}) => {
-  const M = (o, n, t) => Math.min(t, Math.max(o, n)), j = (o, n, t, s) => {
-    const e = Math.min(o, n) * M(t, 0, 0.5), l = e * M(s, -1, 1);
-    return [e, l];
-  }, i = (o, n, t, s) => [
-    "M",
-    0,
-    n - t,
-    "C",
-    0,
-    n + s,
-    -s,
+const T = (o, t, n) => o / Math.min(t, n), f = (o, t, n, s) => {
+  const r = (m, p, $) => Math.min($, Math.max(m, p)), e = Math.min(o, t) * r(n, 0, 0.5), l = e * r(s, -1, 1);
+  return [e, l];
+}, v = (o, t, n, s) => [
+  "M",
+  0,
+  t - n,
+  "C",
+  0,
+  t + s,
+  -s,
+  t,
+  n,
+  t,
+  "L",
+  o - n,
+  t,
+  "C",
+  o + s,
+  t,
+  o,
+  t + s,
+  o,
+  t - n,
+  "L",
+  o,
+  n,
+  "C",
+  o,
+  -s,
+  o + s,
+  0,
+  o - n,
+  0,
+  "L",
+  n,
+  0,
+  "C",
+  -s,
+  0,
+  0,
+  -s,
+  0,
+  n,
+  "Z"
+].join(" "), A = ({
+  curveLength: o = 0.3125,
+  curveSharpness: t = -0.2
+} = {}) => ({
+  bgWidth: n,
+  bgHeight: s,
+  curveLength: r = o,
+  curveSharpness: a = t
+}) => {
+  const [e, l] = f(
     n,
-    t,
-    n,
-    "L",
-    o - t,
-    n,
-    "C",
-    o + s,
-    n,
-    o,
-    n + s,
-    o,
-    n - t,
-    "L",
-    o,
-    t,
-    "C",
-    o,
-    -s,
-    o + s,
-    0,
-    o - t,
-    0,
-    "L",
-    t,
-    0,
-    "C",
-    -s,
-    0,
-    0,
-    -s,
-    0,
-    t,
-    "Z"
-  ].join(" ");
-  return [
-    ({
-      bgWidth: o,
-      bgHeight: n,
-      curveLength: t = a,
-      curveSharpness: s = p
-    }) => {
-      const [c, e] = j(
-        o,
-        n,
-        t,
-        s
-      );
-      return `path('${i(o, n, c, e)}')`;
+    s,
+    r,
+    a
+  );
+  return `path('${v(n, s, e, l)}')`;
+}, O = ({
+  curveLength: o = 0.3125,
+  curveSharpness: t = -0.2,
+  svgBackground: n = "#fff",
+  svgStroke: s = "none",
+  svgStrokeWidth: r = 1
+} = {}) => ({
+  bgWidth: a,
+  bgHeight: e,
+  curveLength: l = o,
+  curveSharpness: m = t,
+  svgBackground: p = n,
+  svgStroke: $ = s,
+  svgStrokeWidth: u = r
+}) => {
+  const c = (d, i, ...k) => `<${d}${Object.entries(i).map(([w, y]) => ` ${w}='${y}'`).join("")}>${k.join("")}</${d}>`, M = () => `i${Math.random()}`, [G, L] = f(
+    a,
+    e,
+    l,
+    m
+  ), j = v(a, e, G, L), C = $ !== "none" && u !== 0, q = C ? M() : "", x = typeof p == "object", I = x ? M() : "", P = c(
+    "svg",
+    {
+      xmlns: "http://www.w3.org/2000/svg",
+      width: `${a}px`,
+      height: `${e}px`
     },
-    ({
-      bgWidth: o,
-      bgHeight: n,
-      curveLength: t = a,
-      curveSharpness: s = p,
-      svgBackground: c = m,
-      svgStroke: e = k,
-      svgStrokeWidth: l = y
-    }) => {
-      const r = ($, C, ...T) => `<${$}${Object.entries(C).map(([U, Z]) => ` ${U}='${Z}'`).join("")}>${T.join("")}</${$}>`, I = () => `i${Math.random()}`, [A, O] = j(
-        o,
-        n,
-        t,
-        s
-      ), q = i(o, n, A, O), d = e !== "none" && l !== 0, G = d ? I() : "", x = typeof c == "object", P = x ? I() : "", R = r(
-        "svg",
+    c(
+      "defs",
+      {},
+      C ? c("clipPath", { id: q }, c("path", { d: j })) : "",
+      x ? c(
+        "linearGradient",
         {
-          xmlns: "http://www.w3.org/2000/svg",
-          width: `${o}px`,
-          height: `${n}px`
+          id: I,
+          gradientTransform: `rotate(${p.gradientAngle ?? 0})`
         },
-        r(
-          "defs",
-          {},
-          d ? r("clipPath", { id: G }, r("path", { d: q })) : "",
-          x ? r(
-            "linearGradient",
-            {
-              id: P,
-              gradientTransform: `rotate(${c.gradientAngle ?? 0})`
-            },
-            ...c.stops.map(
-              ({ stopOffset: $, gradientColor: C }) => r("stop", { offset: $, "stop-color": C })
-            )
-          ) : ""
-        ),
-        r("path", {
-          ...d ? {
-            "clip-path": `url(#${G})`,
-            stroke: e,
-            "stroke-width": `${l * 2}px`
-          } : {},
-          fill: x ? `url(#${P})` : c,
-          d: q
-        })
-      );
-      return `url("data:image/svg+xml,${encodeURIComponent(R)}") left top no-repeat`;
-    }
-  ];
-}, [z, D] = f();
+        ...p.stops.map(
+          ({ stopOffset: d, gradientColor: i }) => c("stop", { offset: d, "stop-color": i })
+        )
+      ) : ""
+    ),
+    c("path", {
+      ...C ? {
+        "clip-path": `url(#${q})`,
+        stroke: $,
+        "stroke-width": `${u * 2}px`
+      } : {},
+      fill: x ? `url(#${I})` : p,
+      d: j
+    })
+  );
+  return `url("data:image/svg+xml,${encodeURIComponent(P)}") left top no-repeat`;
+}, U = A(), Z = O();
 export {
-  D as bgSquircle,
-  z as clipSquircle,
-  w as getConstantCurveLength,
-  f as newSquirclers
+  Z as bgSquircle,
+  U as clipSquircle,
+  T as getConstantCurveLength,
+  O as newBgSquircler,
+  A as newClipSquircler
 };

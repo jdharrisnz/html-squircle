@@ -50,6 +50,8 @@ type BackgroundSquircler = (params: SquircleParams) => `url("data:image/svg+xml,
  * quite different to `border-radius` from CSS, which you might be more used to.
  */
 export declare const getConstantCurveLength: (pixelLength: number, width: number, height: number) => number;
-export declare const newSquirclers: ({ curveLength: defaultCurveLength, curveSharpness: defaultCurveSharpness, svgBackground: defaultSvgBackground, svgStroke: defaultSvgStroke, svgStrokeWidth: defaultSvgStrokeWidth }?: SquircleOptionalParams) => [ClipSquircler, BackgroundSquircler];
-export declare const clipSquircle: ClipSquircler, bgSquircle: BackgroundSquircler;
+export declare const newClipSquircler: ({ curveLength: defaultCurveLength, curveSharpness: defaultCurveSharpness }?: Omit<SquircleOptionalParams, "svgBackground" | "svgStroke" | "svgStrokeWidth">) => ClipSquircler;
+export declare const newBgSquircler: ({ curveLength: defaultCurveLength, curveSharpness: defaultCurveSharpness, svgBackground: defaultSvgBackground, svgStroke: defaultSvgStroke, svgStrokeWidth: defaultSvgStrokeWidth }?: SquircleOptionalParams) => BackgroundSquircler;
+export declare const clipSquircle: ClipSquircler;
+export declare const bgSquircle: BackgroundSquircler;
 export {};

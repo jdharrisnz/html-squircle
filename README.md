@@ -57,9 +57,10 @@ document.getElementById("anotherElementId").style.background = backgroundStyle
 
 The `clipSquircle` and `bgSquircle` exports provide Apple-like default values to `curveLength` and
 `curveSharpness`, such that square elements will look like app icons. It also makes the default
-background white, with no stroke, and stroke width 1px. To create a pair of functions with defaults
-adhering to your own design system, use the `newSquirclers` export and supply it with your own
-preferences.
+background white, with no stroke, and stroke width 1px.
+
+To create functions with defaults adhering to your own design system, use the `newClipSquircler` and
+`newBgSquircler` exports and supply them with your own preferences.
 
 There is also the `getConstantCurveLength` export, which you can use as an input to the
 `curveLength` parameter to define a curve length in pixels that will not change in response to the

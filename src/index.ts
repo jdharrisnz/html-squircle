@@ -1,259 +1,389 @@
-/* eslint-disable no-restricted-properties */
-/* eslint-disable no-restricted-globals */
-/* eslint-disable typescript-sort-keys/interface */
-interface SquircleOptionalParams {
-    /**
-     * How long the curve should be, expressed as a fraction of the shortest side. Minimum zero,
-     * maximum 0.5.
-     *
-     * In SVG, affects the position of the point where the curve begins.
-     */
-    curveLength?: number
+export type TagName = keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap
 
-    /**
-     * How tightly the curve should take the corner, expressed as a fraction of the `curveLength`.
-     * Positive numbers mean sharper, negative numbers mean smoother. Minimum -1, maximum 1. Values
-     * above 0.3 usually result in right angles.
-     *
-     * In SVG, affects the length of the curve's control handle.
-     */
-    curveSharpness?: number
+export type Attributes = Readonly<Record<string, string | number | true>>
 
-    /**
-     * Spec for the background. Pass a color string for a solid background, or an angle and an array
-     * of stops for a linear gradient.
-     */
-    svgBackground?:
-        | string
-        | {
-              /** Angle of the gradient in degrees. */
-              gradientAngle?: number
-              stops: {
-                  /** Percentage number. */
-                  stopOffset: number
+export type Children = readonly string[]
 
-                  /** Color string. */
-                  gradientColor: string
-              }[]
-          }
+export type InjectionFunction = (hooks: {
+  /**
+   * The path id that can be used inside a `use` element.
+   *
+   * ```js
+   * tag("use", { href: `#${pathId}` })
+   * ```
+   *
+   * Use it to hook into the generated path, which has `d` pre-filled.
+   */
+  readonly pathId: `i${number}`
 
-    /** Stroke color string. */
-    svgStroke?: string
+  /**
+   * The rect id that can be used inside a `use` element.
+   *
+   * ```js
+   * tag("use", { href: `#${pathId}` })
+   * ```
+   *
+   * Use it to hook into the generated rect, which has simply `width` and
+   * `height` 100%.
+   */
+  readonly rectId: `i${number}`
 
-    /** Width of the stroke in pixels. */
-    svgStrokeWidth?: number
+  /**
+   * The clip id that can be used as a `clip-path` attribute.
+   *
+   * ```js
+   * tag("rect", { "clip-path": `url(#${clipId})` })
+   * ```
+   *
+   * Use it to clip an element to the generated path.
+   */
+  readonly clipId: `i${number}`
+
+  /**
+   * The mask id that can be used as a `mask` attribute.
+   *
+   * ```js
+   * tag("rect", { mask: `url(#${maskId})` })
+   * ```
+   *
+   * Use it to mask an element by the supplied `stroke-width` of the path.
+   */
+  readonly maskId: `i${number}`
+
+  /**
+   * The gradient id that can be used in a `fill` attribute.
+   *
+   * ```js
+   * tag("rect", { fill: `url(#${maskId})` })
+   * ```
+   */
+  readonly gradientId: `i${number}` | ""
+}) => string
+
+export interface GradientStop {
+  /** Percentage number. */
+  readonly offset: number
+
+  /** Color string. */
+  readonly stopColor: string
 }
 
-interface SquircleParams extends SquircleOptionalParams {
-    /** Width of the background in pixels. */
-    bgWidth: number
+export interface SquircleOptionsSVG {
+  /** Width of the element the style will be applied to. */
+  readonly width: number
 
-    /** Height of the background in pixels. */
-    bgHeight: number
+  /** Height of the element the style will be applied to. */
+  readonly height: number
+
+  /**
+   * Length of the curve in pixels.
+   *
+   * Minimum is zero, maximum is half the length of the shortest side.
+   *
+   * In SVG terms, affects the position of the points where the curves begin and
+   * end.
+   *
+   * Default: Calculated according to the shortest of width or height to provide
+   * curves like Apple app icons.
+   */
+  readonly curveLength?: number | undefined
+
+  /**
+   * How smoothly the curve should take the corner, expressed as a fraction of
+   * the `curveLength`. Positive numbers mean smoother, negative numbers mean
+   * sharper.
+   *
+   * Minimum -1, maximum 1. Values below -0.3 usually result in right angles.
+   *
+   * In SVG terms, affects the length of the curve's control handles.
+   *
+   * @default
+   *
+   * 0.2
+   */
+  readonly roundness?: number | undefined
+
+  /**
+   * Stroke color string.
+   *
+   * If you aren't specifying this, you should probably be using the function
+   * for `clip-path` instead.
+   *
+   * @default
+   *
+   * "none"
+   */
+  readonly stroke?: string | undefined
+
+  /**
+   * Width of the stroke in pixels. This is drawn on the inside of the image.
+   *
+   * @default
+   *
+   * 1
+   */
+  readonly strokeWidth?: number | undefined
+
+  /**
+   * Spec for the background. Pass a color string for a solid background, or an
+   * angle and an array of stops for a linear gradient.
+   *
+   * @default
+   *
+   * "#fff"
+   */
+  readonly background?:
+    | string
+    | {
+        /** Angle of the gradient in degrees. */
+        readonly gradientAngle?: number
+
+        /** Color stops for the gradient. Provide at least two. */
+        readonly stops: readonly [GradientStop, GradientStop, ...GradientStop[]]
+      }
+    | undefined
+
+  /**
+   * Element(s) to insert into the <defs /> tag.
+   *
+   * When you need to use quote marks, use single quotes.
+   *
+   * Supply a `string` or an {@link InjectionFunction} to get access to the inner
+   * ids of the SVG.
+   *
+   * @default
+   *
+   * ""
+   */
+  readonly injectedDefs?: string | InjectionFunction | undefined
+
+  /**
+   * Element(s) to insert into the SVG body.
+   *
+   * When you need to use quote marks, use single quotes.
+   *
+   * Supply a `string` or an {@link InjectionFunction} to get access to the inner
+   * ids of the SVG.
+   *
+   * @default
+   *
+   * ""
+   */
+  readonly injectedBody?: string | InjectionFunction | undefined
 }
 
-type ClipSquircler = (
-    params: Omit<SquircleParams, "svgBackground" | "svgStroke" | "svgStrokeWidth">
-) => `path('${string}')`
+export type SquircleOptionsClip = Omit<
+  SquircleOptionsSVG,
+  "stroke" | "strokeWidth" | "background" | "injectedDefs" | "injectedBody"
+>
 
-type BackgroundSquircler = (
-    params: SquircleParams
-) => `url("data:image/svg+xml,${string}") left top no-repeat`
+/** @internal */
+const handleEntry = ([key, value]: readonly [
+  string,
+  string | number | boolean
+]): string => (value === true ? ` ${key}` : ` ${key}='${value}'`)
+
+export const tag = <
+  T extends keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap,
+  C extends string[]
+>(
+  tagName: T,
+  attributes: Readonly<Record<string, string | number | boolean>>,
+  ...children: C
+): string =>
+  `<${tagName}${Object.entries(attributes)
+    .map(handleEntry)
+    .join("")}>${children.join("")}</${tagName}>`
 
 /**
- * To get a constant curve length, supply the result of this function to the `curveLength` parameter
- * of either of the squircle functions. This is subject to the minimum and maximum lengths that stop
- * the SVG from going wonky.
+ * Get squircle SVG path.
  *
- * This length is defined in pixels, but bear in mind the length of the squircle's curve is visually
- * quite different to `border-radius` from CSS, which you might be more used to.
+ * @internal
  */
-export const getConstantCurveLength = (pixelLength: number, width: number, height: number) =>
-    pixelLength / Math.min(width, height)
+const getPath = (
+  width: number,
+  height: number,
+  cShift: number,
+  rShift: number
+): string =>
+  // Curve runs clockwise
+  [
+    // Start at top left pre-curve
+    ...["M", 0, height - cShift],
 
+    // Curve to top left post-curve
+    ...["C", 0, height - rShift, rShift, height, cShift, height],
+
+    // Line to top right pre-curve
+    ...["L", width - cShift, height],
+
+    // Curve to top right post-curve
+    ...[
+      "C",
+      width - rShift,
+      height,
+      width,
+      height - rShift,
+      width,
+      height - cShift
+    ],
+
+    // Line to bottom right pre-curve
+    ...["L", width, cShift],
+
+    // Curve to bottom right post-curve
+    ...["C", width, rShift, width - rShift, 0, width - cShift, 0],
+
+    // Line to bottom left pre-curve
+    ...["L", cShift, 0],
+
+    // Curve to bottom left post-curve
+    ...["C", rShift, 0, 0, rShift, 0, cShift],
+
+    // Close the path
+    "Z"
+  ].join(" ")
+
+/** @internal */
+const clamp = (value: number, minimum: number, maximum: number): number =>
+  Math.min(maximum, Math.max(minimum, value))
+
+/**
+ * Get the pixels shifts for curve length and roundness.
+ *
+ * @internal
+ */
 const getCurveSpec = (
-    width: number,
-    height: number,
-    curveLength: number,
-    curveSharpness: number
-): [number, number] => {
-    const clamp = (value: number, minimum: number, maximum: number): number =>
-        Math.min(maximum, Math.max(value, minimum))
+  width: number,
+  height: number,
+  curveLength: number | undefined,
+  roundness: number
+): readonly [number, number] => {
+  const shortestSide = Math.min(width, height)
 
-    const shortestSide = Math.min(width, height)
-    const curveLengthShift = shortestSide * clamp(curveLength, 0, 0.5)
-    const curveSharpnessShift = curveLengthShift * clamp(curveSharpness, -1, 1)
+  // Matches Apple app icons when square
+  const defaultCurveLength = (5 / 16) * shortestSide
+  const minCurveLength = 0
+  const maxCurveLength = shortestSide / 2
 
-    return [curveLengthShift, curveSharpnessShift]
+  const curveLengthShift = clamp(
+    curveLength ?? defaultCurveLength,
+    minCurveLength,
+    maxCurveLength
+  )
+  const roundnessShift = curveLengthShift * clamp(roundness, -1, 1)
+
+  return [curveLengthShift, roundnessShift]
 }
 
-const getPath = (
-    width: number,
-    height: number,
-    curveLengthShift: number,
-    curveSharpnessShift: number
-): string =>
-    [
-        "M",
-        0,
-        height - curveLengthShift,
+/** Produces a squircle path to be used in `background-clip` inline styles. */
+export const clipSquircle = ({
+  width,
+  height,
+  curveLength,
+  roundness = 0.2
+}: SquircleOptionsClip): `path('${string}')` =>
+  `path('${getPath(width, height, ...getCurveSpec(width, height, curveLength, roundness))}')`
 
-        "C",
-        0,
-        height + curveSharpnessShift,
-        -curveSharpnessShift,
-        height,
-        curveLengthShift,
-        height,
+/** @internal */
+let serialId = 0
 
-        "L",
-        width - curveLengthShift,
-        height,
+/** @internal */
+const getSerialId = (): `i${number}` => {
+  serialId += 1
+  return `i${serialId - 1}`
+}
 
-        "C",
-        width + curveSharpnessShift,
-        height,
-        width,
-        height + curveSharpnessShift,
-        width,
-        height - curveLengthShift,
+/** Produces a URI-encoded squircle SVG to be used in `background` inline styles. */
+export const backgroundSquircle = ({
+  width,
+  height,
+  curveLength,
+  roundness = 0.2,
+  stroke = "none",
+  strokeWidth = 1,
+  background = "#fff",
+  injectedDefs = "",
+  injectedBody = ""
+}: SquircleOptionsSVG): `url("data:image/svg+xml,${string}") left top no-repeat` => {
+  const [curveLengthShift, roundnessShift] = getCurveSpec(
+    width,
+    height,
+    curveLength,
+    roundness
+  )
 
-        "L",
-        width,
-        curveLengthShift,
+  const d = getPath(width, height, curveLengthShift, roundnessShift)
 
-        "C",
-        width,
-        -curveSharpnessShift,
-        width + curveSharpnessShift,
-        0,
-        width - curveLengthShift,
-        0,
+  const pathId = getSerialId()
+  const rectId = getSerialId()
+  const clipId = getSerialId()
+  const maskId = getSerialId()
+  const isGradient = typeof background === "object"
+  const gradientId = isGradient ? getSerialId() : ("" as const)
+  const injectorArg: Parameters<InjectionFunction>[0] = {
+    pathId,
+    rectId,
+    clipId,
+    maskId,
+    gradientId
+  }
 
-        "L",
-        curveLengthShift,
-        0,
+  const svg = encodeURIComponent(
+    tag(
+      "svg",
+      {
+        xmlns: "http://www.w3.org/2000/svg",
+        width: `${width}px`,
+        height: `${height}px`
+      },
+      tag(
+        "defs",
+        {},
+        tag("path", { id: pathId, d }),
+        tag("rect", { id: rectId, width: "100%", height: "100%" }),
+        tag("clipPath", { id: clipId }, tag("use", { href: `#${pathId}` })),
+        tag(
+          "mask",
+          { id: maskId },
+          tag("use", { href: `#${rectId}`, fill: "black" }),
+          tag("use", {
+            href: `#${pathId}`,
+            stroke: "#fff",
+            "stroke-width": `${strokeWidth * 2}px`
+          })
+        ),
+        isGradient
+          ? tag(
+              "linearGradient",
+              {
+                id: gradientId,
+                gradientTransform: `rotate(${background.gradientAngle ?? 0} 0.5 0.5)`
+              },
+              ...background.stops.map(({ offset, stopColor }) =>
+                tag("stop", {
+                  offset,
+                  "stop-color": stopColor
+                })
+              )
+            )
+          : "",
+        typeof injectedDefs === "function"
+          ? injectedDefs(injectorArg)
+          : injectedDefs
+      ),
+      tag("use", {
+        href: `#${pathId}`,
+        "clip-path": `url(#${clipId})`,
+        fill: isGradient ? `url(#${gradientId})` : background,
+        stroke,
+        "stroke-width": `${strokeWidth * 2}px`
+      }),
+      typeof injectedBody === "function"
+        ? injectedBody(injectorArg)
+        : injectedBody
+    )
+  )
 
-        "C",
-        -curveSharpnessShift,
-        0,
-        0,
-        -curveSharpnessShift,
-        0,
-        curveLengthShift,
-
-        "Z"
-    ].join(" ")
-
-export const newClipSquircler =
-    ({
-        curveLength: defaultCurveLength = 5 / 16,
-        curveSharpness: defaultCurveSharpness = -0.2
-    }: Omit<
-        SquircleOptionalParams,
-        "svgBackground" | "svgStroke" | "svgStrokeWidth"
-    > = {}): ClipSquircler =>
-    ({
-        bgWidth,
-        bgHeight,
-        curveLength = defaultCurveLength,
-        curveSharpness = defaultCurveSharpness
-    }) => {
-        const [curveLengthShift, curveSharpnessShift] = getCurveSpec(
-            bgWidth,
-            bgHeight,
-            curveLength,
-            curveSharpness
-        )
-
-        return `path('${getPath(bgWidth, bgHeight, curveLengthShift, curveSharpnessShift)}')`
-    }
-
-export const newBgSquircler =
-    ({
-        curveLength: defaultCurveLength = 5 / 16,
-        curveSharpness: defaultCurveSharpness = -0.2,
-        svgBackground: defaultSvgBackground = "#fff",
-        svgStroke: defaultSvgStroke = "none",
-        svgStrokeWidth: defaultSvgStrokeWidth = 1
-    }: SquircleOptionalParams = {}): BackgroundSquircler =>
-    ({
-        bgWidth,
-        bgHeight,
-        curveLength = defaultCurveLength,
-        curveSharpness = defaultCurveSharpness,
-        svgBackground = defaultSvgBackground,
-        svgStroke = defaultSvgStroke,
-        svgStrokeWidth = defaultSvgStrokeWidth
-    }) => {
-        const tag = (
-            tagName: keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap,
-            attributes: Record<string, string | number>,
-            ...children: string[]
-        ): string =>
-            `<${tagName}${Object.entries(attributes)
-                .map(([key, value]) => ` ${key}='${value}'`)
-                .join("")}>${children.join("")}</${tagName}>`
-
-        const getId = (): `i${number}` => `i${Math.random()}`
-
-        const [curveLengthShift, curveSharpnessShift] = getCurveSpec(
-            bgWidth,
-            bgHeight,
-            curveLength,
-            curveSharpness
-        )
-
-        const d = getPath(bgWidth, bgHeight, curveLengthShift, curveSharpnessShift)
-
-        const isStroked = svgStroke !== "none" && svgStrokeWidth !== 0
-        const clipId = isStroked ? getId() : ""
-
-        const isGradient = typeof svgBackground === "object"
-        const gradientId = isGradient ? getId() : ""
-
-        const svg = tag(
-            "svg",
-            {
-                xmlns: "http://www.w3.org/2000/svg",
-                width: `${bgWidth}px`,
-                height: `${bgHeight}px`
-            },
-            tag(
-                "defs",
-                {},
-                isStroked ? tag("clipPath", { id: clipId }, tag("path", { d })) : "",
-                isGradient
-                    ? tag(
-                          "linearGradient",
-                          {
-                              id: gradientId,
-                              gradientTransform: `rotate(${svgBackground.gradientAngle ?? 0})`
-                          },
-                          ...svgBackground.stops.map(({ stopOffset, gradientColor }) =>
-                              tag("stop", { offset: stopOffset, "stop-color": gradientColor })
-                          )
-                      )
-                    : ""
-            ),
-            tag("path", {
-                ...(isStroked
-                    ? {
-                          "clip-path": `url(#${clipId})`,
-                          stroke: svgStroke,
-                          "stroke-width": `${svgStrokeWidth * 2}px`
-                      }
-                    : {}),
-                fill: isGradient ? `url(#${gradientId})` : svgBackground,
-                d
-            })
-        )
-
-        const encodedSvg = encodeURIComponent(svg)
-
-        return `url("data:image/svg+xml,${encodedSvg}") left top no-repeat`
-    }
-
-export const clipSquircle = newClipSquircler()
-
-export const bgSquircle = newBgSquircler()
+  return `url("data:image/svg+xml,${svg}") left top no-repeat`
+}

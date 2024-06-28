@@ -15,7 +15,7 @@
     "type": "git",
     "url": "git+https://github.com/jdharrisnz/html-squircle.git"
   },
-  "license": "GPL-3.0",
+  "license": "MIT",
   "author": "Josh Harris",
   "type": "module",
   "main": "dist/umd/index.js",

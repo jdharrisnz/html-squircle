@@ -67,14 +67,17 @@ export class LRUCache {
     }
     prune() {
         // Oldest keys are first in the list
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const oldestKey = this.cache.keys().next().value;
         if (oldestKey !== undefined) {
             this.cache.delete(oldestKey);
         }
     }
     get(key) {
-        if (!this.cache.has(key))
+        if (!this.cache.has(key)) {
             return undefined;
+        }
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const value = this.cache.get(key);
         // Reset the position
         this.cache.delete(key);
@@ -145,12 +148,15 @@ const backgroundParams = {
     injectedBody: ""
 };
 /** @internal */
-export const serializeBackgroundParams = (params) => sortAndSerialize({
+export const serializeBackgroundParams = (params) => 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+sortAndSerialize({
     /**
      * The combination of unions for the `background` key isn't quite right but
      * the actual implementation is ok.
      */
     ...backgroundParams,
     ...params
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
 });
 //# sourceMappingURL=utils.js.map

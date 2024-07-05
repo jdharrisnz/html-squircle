@@ -82,14 +82,17 @@
         }
         prune() {
             // Oldest keys are first in the list
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const oldestKey = this.cache.keys().next().value;
             if (oldestKey !== undefined) {
                 this.cache.delete(oldestKey);
             }
         }
         get(key) {
-            if (!this.cache.has(key))
+            if (!this.cache.has(key)) {
                 return undefined;
+            }
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const value = this.cache.get(key);
             // Reset the position
             this.cache.delete(key);
@@ -162,13 +165,16 @@
         injectedBody: ""
     };
     /** @internal */
-    const serializeBackgroundParams = (params) => sortAndSerialize({
+    const serializeBackgroundParams = (params) => 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    sortAndSerialize({
         /**
          * The combination of unions for the `background` key isn't quite right but
          * the actual implementation is ok.
          */
         ...backgroundParams,
         ...params
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
     });
     exports.serializeBackgroundParams = serializeBackgroundParams;
 });

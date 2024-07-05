@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react"
+import { useMemo } from "react"
 
 import { clipSquircle } from "./clipSquircle.js"
 import { useResizeObserver } from "./useResizeObserver.js"

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react"
+import { useMemo } from "react"
 
 import { backgroundSquircle } from "./backgroundSquircle.js"
 import { useResizeObserver } from "./useResizeObserver.js"

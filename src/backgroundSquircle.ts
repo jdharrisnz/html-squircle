@@ -1,6 +1,6 @@
 import { tag } from "./tag.js"
 import { Types } from "./types.js"
-import { getCurveSpec, getPath, getSerialId } from "./utils.js"
+import { getCurveSpec, getPath } from "./utils.js"
 
 /** Produces a URI-encoded squircle SVG to be used in `background` inline styles. */
 export const backgroundSquircle = ({

@@ -93,6 +93,7 @@ export const getSerialId = (): `i${number}` => {
 /** @internal */
 export class LRUCache<T> {
   private readonly cache: Map<string, T>
+
   private capacity: number
 
   constructor(capacity: number) {
@@ -102,6 +103,7 @@ export class LRUCache<T> {
 
   private prune() {
     // Oldest keys are first in the list
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const oldestKey: string | undefined = this.cache.keys().next().value
     if (oldestKey !== undefined) {
       this.cache.delete(oldestKey)
@@ -109,8 +111,11 @@ export class LRUCache<T> {
   }
 
   public get(key: string): T | undefined {
-    if (!this.cache.has(key)) return undefined
+    if (!this.cache.has(key)) {
+      return undefined
+    }
 
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const value = this.cache.get(key)!
 
     // Reset the position
@@ -206,6 +211,7 @@ const backgroundParams: Types.SquircleOptionsSVG = {
 
 /** @internal */
 export const serializeBackgroundParams = (params: Types.SquircleOptionsSVG) =>
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   sortAndSerialize({
     /**
      * The combination of unions for the `background` key isn't quite right but
@@ -213,4 +219,5 @@ export const serializeBackgroundParams = (params: Types.SquircleOptionsSVG) =>
      */
     ...backgroundParams,
     ...params
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any)

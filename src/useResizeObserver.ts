@@ -40,7 +40,9 @@ export const useResizeObserver = <T extends Element>(
 
   // No dependencies as we want to re-run on every render
   useLayoutEffect(() => {
-    if (!ref.current) return
+    if (!ref.current) {
+      return undefined
+    }
 
     const observer = new ResizeObserver(callback)
 

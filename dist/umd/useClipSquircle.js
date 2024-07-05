@@ -27,14 +27,6 @@
         }
         return cache;
     };
-    /** @internal */
-    const initialState = {
-        style: { clipPath: "path('')" },
-        lastNonZeroSize: {
-            width: 0,
-            height: 0
-        }
-    };
     /**
      * Compute a `clipSquircle` at the size of the `ref`'d element. The returned
      * object has a stable reference, so can be applied straight to the `style` prop
@@ -49,47 +41,26 @@
      */
     const useClipSquircle = ({ curveLength, roundness }, ref, cacheCapacity) => {
         getCache().setCapacity(cacheCapacity);
-        const [{ style }, setState] = (0, react_1.useState)(initialState);
-        const resizeCallback = (0, react_1.useCallback)((entries) => {
-            setState((currentState) => 
-            // There should only be one entry, but I still need to safely reduce
-            entries.reduce(({ lastNonZeroSize: { width: nonZeroWidth, height: nonZeroHeight } }, { target: { scrollWidth, scrollHeight } }) => {
-                /**
-                 * When the `ref`'d element is removed from the DOM without the host
-                 * component being unmounted, the `ResizeObserver` will run the
-                 * callback with zero as the measured size. When it's added back to
-                 * the DOM, the `ResizeObserver` won't run the callback, so the size
-                 * stays zero. This guards against that by keeping the last non-zero
-                 * size.
-                 */
-                const [width, height] = scrollWidth > 0 && scrollHeight > 0
-                    ? [scrollWidth, scrollHeight]
-                    : [nonZeroWidth, nonZeroHeight];
-                const params = {
-                    width,
-                    height,
-                    curveLength,
-                    roundness
-                };
-                const key = (0, utils_js_1.serializeClipParams)(params);
-                let path = getCache().get(key);
-                if (path === undefined) {
-                    path = (0, clipSquircle_js_1.clipSquircle)(params);
-                    getCache().set(key, path);
-                }
-                return {
-                    style: {
-                        clipPath: path
-                    },
-                    lastNonZeroSize: {
-                        width,
-                        height
-                    }
-                };
-            }, currentState));
-        }, [curveLength, roundness]);
-        (0, useResizeObserver_js_1.useResizeObserver)(resizeCallback, ref);
-        return style;
+        const { width, height } = (0, useResizeObserver_js_1.useResizeObserver)(ref);
+        const cacheKey = (0, react_1.useMemo)(() => (0, utils_js_1.serializeClipParams)({
+            width,
+            height,
+            curveLength,
+            roundness
+        }), [width, height, curveLength, roundness]);
+        let clipPath = getCache().get(cacheKey);
+        if (clipPath === undefined) {
+            clipPath = (0, clipSquircle_js_1.clipSquircle)({
+                width,
+                height,
+                curveLength,
+                roundness
+            });
+            getCache().set(cacheKey, clipPath);
+        }
+        return (0, react_1.useMemo)(() => ({
+            clipPath
+        }), [clipPath]);
     };
     exports.useClipSquircle = useClipSquircle;
 });

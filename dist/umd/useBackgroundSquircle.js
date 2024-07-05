@@ -27,14 +27,6 @@
         }
         return cache;
     };
-    /** @internal */
-    const initialState = {
-        style: { background: 'url("data:image/svg+xml,") left top no-repeat' },
-        lastNonZeroSize: {
-            width: 0,
-            height: 0
-        }
-    };
     /**
      * Compute a `backgroundSquircle` at the size of the `ref`'d element. The
      * returned object has a stable reference, so can be applied straight to the
@@ -48,62 +40,48 @@
      *
      * Uses a `ResizeObserver` to keep in sync with the element.
      */
-    const useBackgroundSquircle = ({ curveLength, roundness, stroke, strokeWidth, background, injectedDefs, injectedBody }, ref, cacheLimit) => {
+    const useBackgroundSquircle = ({ curveLength, roundness, stroke, strokeWidth, background: backgroundParam, injectedDefs, injectedBody }, ref, cacheLimit) => {
         getCache().setCapacity(cacheLimit);
-        const [{ style }, setState] = (0, react_1.useState)(initialState);
-        const resizeCallback = (0, react_1.useCallback)((entries) => {
-            setState((currentState) => 
-            // There should only be one entry, but I still need to safely reduce
-            entries.reduce(({ lastNonZeroSize: { width: nonZeroWidth, height: nonZeroHeight } }, { target: { scrollWidth, scrollHeight } }) => {
-                /**
-                 * When the `ref`'d element is removed from the DOM without the host
-                 * component being unmounted, the `ResizeObserver` will run the
-                 * callback with zero as the measured size. When it's added back to
-                 * the DOM, the `ResizeObserver` won't run the callback, so the size
-                 * stays zero. This guards against that by keeping the last non-zero
-                 * size.
-                 */
-                const [width, height] = scrollWidth > 0 && scrollHeight > 0
-                    ? [scrollWidth, scrollHeight]
-                    : [nonZeroWidth, nonZeroHeight];
-                const params = {
-                    width,
-                    height,
-                    curveLength,
-                    roundness,
-                    stroke,
-                    strokeWidth,
-                    background,
-                    injectedDefs,
-                    injectedBody
-                };
-                const key = (0, utils_js_1.serializeBackgroundParams)(params);
-                let svg = getCache().get(key);
-                if (svg === undefined) {
-                    svg = (0, backgroundSquircle_js_1.backgroundSquircle)(params);
-                    getCache().set(key, svg);
-                }
-                return {
-                    style: {
-                        background: svg
-                    },
-                    lastNonZeroSize: {
-                        width,
-                        height
-                    }
-                };
-            }, currentState));
-        }, [
+        const { width, height } = (0, useResizeObserver_js_1.useResizeObserver)(ref);
+        const cacheKey = (0, react_1.useMemo)(() => (0, utils_js_1.serializeBackgroundParams)({
+            width,
+            height,
             curveLength,
             roundness,
             stroke,
             strokeWidth,
-            background,
+            background: backgroundParam,
+            injectedDefs,
+            injectedBody
+        }), [
+            width,
+            height,
+            curveLength,
+            roundness,
+            stroke,
+            strokeWidth,
+            backgroundParam,
             injectedDefs,
             injectedBody
         ]);
-        (0, useResizeObserver_js_1.useResizeObserver)(resizeCallback, ref);
-        return style;
+        let background = getCache().get(cacheKey);
+        if (background === undefined) {
+            background = (0, backgroundSquircle_js_1.backgroundSquircle)({
+                width,
+                height,
+                curveLength,
+                roundness,
+                stroke,
+                strokeWidth,
+                background: backgroundParam,
+                injectedDefs,
+                injectedBody
+            });
+            getCache().set(cacheKey, background);
+        }
+        return (0, react_1.useMemo)(() => ({
+            background
+        }), [background]);
     };
     exports.useBackgroundSquircle = useBackgroundSquircle;
 });

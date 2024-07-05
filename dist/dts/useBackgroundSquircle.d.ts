@@ -14,7 +14,7 @@ import type { Types } from "./types.js";
  *
  * Uses a `ResizeObserver` to keep in sync with the element.
  */
-export declare const useBackgroundSquircle: <T extends Element>({ curveLength, roundness, stroke, strokeWidth, background, injectedDefs, injectedBody }: Omit<Types.SquircleOptionsSVG, "width" | "height">, ref: RefObject<T>, cacheLimit?: number) => {
+export declare const useBackgroundSquircle: <T extends Element>({ curveLength, roundness, stroke, strokeWidth, background: backgroundParam, injectedDefs, injectedBody }: Omit<Types.SquircleOptionsSVG, "width" | "height">, ref: RefObject<T>, cacheLimit?: number) => {
     readonly background: ReturnType<typeof backgroundSquircle>;
 };
 //# sourceMappingURL=useBackgroundSquircle.d.ts.map

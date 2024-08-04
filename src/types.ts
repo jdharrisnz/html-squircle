@@ -1,3 +1,5 @@
+import type { RefObject } from "react"
+
 export declare namespace Types {
   type TagName = keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap
 
@@ -139,4 +141,10 @@ export declare namespace Types {
     SquircleOptionsSVG,
     "stroke" | "strokeWidth" | "background" | "injectedDefs" | "injectedBody"
   >
+
+  interface HookOptions<T extends Element> {
+    readonly ref: RefObject<T>
+    readonly deps?: unknown[] | undefined
+    readonly cacheCapacity?: number | undefined
+  }
 }

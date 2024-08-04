@@ -34,11 +34,12 @@ const initialState: Size = {
 
 /** @internal */
 export const useResizeObserver = <T extends Element>(
-  ref: RefObject<T>
+  ref: RefObject<T>,
+  dependencies?: unknown[] | undefined
 ): Size => {
   const [size, callback] = useReducer(sizeReducer, initialState)
+  const deps = dependencies && [ref, ...dependencies]
 
-  // No dependencies as we want to re-run on every render
   useLayoutEffect(() => {
     if (!ref.current) {
       return undefined
@@ -51,7 +52,8 @@ export const useResizeObserver = <T extends Element>(
     return () => {
       observer.disconnect()
     }
-  })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps)
 
   return size
 }

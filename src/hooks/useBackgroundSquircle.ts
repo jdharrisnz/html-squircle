@@ -4,7 +4,6 @@ import { backgroundSquircle } from "../core/backgroundSquircle.js"
 import { LRUCache, serializeBackgroundParams } from "../utils/utils.js"
 import { useResizeObserver } from "./useResizeObserver.js"
 
-import type { RefObject } from "react"
 import type { Types } from "../types.js"
 
 /** @internal */
@@ -28,13 +27,18 @@ const getCache = () => {
  * returned object has a stable reference, so can be applied straight to the
  * `style` prop of your element.
  *
- * Memoizes the result across all components by using a simple LRU cache, with a
- * default size of 20. Set the default size by passing a `cacheLimit` argument.
- *
  * There's no need to ensure the params argument has a stable reference, UNLESS
  * you are supplying an object-style `background` prop for a gradient.
  *
- * Uses a `ResizeObserver` to keep in sync with the element.
+ * Use the `deps` option to provide dependencies to the underlying
+ * `ResizeObserver` effect. This should be any state which could cause the
+ * element to be removed from or added to the DOM, excluding component
+ * unmounting. If you're unsure, don't use the option - it's just an
+ * optimisation to prevent unnecessary runs of the `useEffect` function.
+ *
+ * Memoizes the result across all components by using a simple LRU cache, with a
+ * default size of 20. Set the default size by using the `cacheCapacity`
+ * option.
  */
 export const useBackgroundSquircle = <T extends Element>(
   {
@@ -42,16 +46,15 @@ export const useBackgroundSquircle = <T extends Element>(
     roundness,
     stroke,
     strokeWidth,
-    background: backgroundParam,
+    background,
     injectedDefs,
     injectedBody
   }: Omit<Types.SquircleOptionsSVG, "width" | "height">,
-  ref: RefObject<T>,
-  cacheLimit?: number
+  { ref, deps, cacheCapacity }: Types.HookOptions<T>
 ): { readonly background: ReturnType<typeof backgroundSquircle> } => {
-  getCache().setCapacity(cacheLimit)
+  getCache().setCapacity(cacheCapacity)
 
-  const { width, height } = useResizeObserver(ref)
+  const { width, height } = useResizeObserver(ref, deps)
 
   const cacheKey = useMemo(
     () =>
@@ -62,7 +65,7 @@ export const useBackgroundSquircle = <T extends Element>(
         roundness,
         stroke,
         strokeWidth,
-        background: backgroundParam,
+        background,
         injectedDefs,
         injectedBody
       }),
@@ -73,33 +76,33 @@ export const useBackgroundSquircle = <T extends Element>(
       roundness,
       stroke,
       strokeWidth,
-      backgroundParam,
+      background,
       injectedDefs,
       injectedBody
     ]
   )
 
-  let background = getCache().get(cacheKey)
+  let result = getCache().get(cacheKey)
 
-  if (background === undefined) {
-    background = backgroundSquircle({
+  if (result === undefined) {
+    result = backgroundSquircle({
       width,
       height,
       curveLength,
       roundness,
       stroke,
       strokeWidth,
-      background: backgroundParam,
+      background,
       injectedDefs,
       injectedBody
     })
-    getCache().set(cacheKey, background)
+    getCache().set(cacheKey, result)
   }
 
   return useMemo(
     () => ({
-      background
+      background: result
     }),
-    [background]
+    [result]
   )
 }

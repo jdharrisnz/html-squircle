@@ -4,7 +4,6 @@ import { clipSquircle } from "../core/clipSquircle.js"
 import { LRUCache, serializeClipParams } from "../utils/utils.js"
 import { useResizeObserver } from "./useResizeObserver.js"
 
-import type { RefObject } from "react"
 import type { Types } from "../types.js"
 
 /** @internal */
@@ -28,24 +27,28 @@ const getCache = () => {
  * object has a stable reference, so can be applied straight to the `style` prop
  * of your element.
  *
- * Memoizes the result across all components by using a simple LRU cache, with a
- * default size of 20. Set the default size by passing a `cacheLimit` argument.
- *
  * There's no need to ensure the params argument has a stable reference.
  *
- * Uses a `ResizeObserver` to keep in sync with the element.
+ * Use the `deps` option to provide dependencies to the underlying
+ * `ResizeObserver` effect. This should be any state which could cause the
+ * element to be removed from or added to the DOM, excluding component
+ * unmounting. If you're unsure, don't use the option - it's just an
+ * optimisation to prevent unnecessary runs of the `useEffect` function.
+ *
+ * Memoizes the result across all components by using a simple LRU cache, with a
+ * default size of 20. Set the default size by using the `cacheCapacity`
+ * option.
  */
 export const useClipSquircle = <T extends Element>(
   {
     curveLength,
     roundness
   }: Omit<Types.SquircleOptionsClip, "width" | "height">,
-  ref: RefObject<T>,
-  cacheCapacity?: number
+  { ref, deps, cacheCapacity }: Types.HookOptions<T>
 ): { readonly clipPath: ReturnType<typeof clipSquircle> } => {
   getCache().setCapacity(cacheCapacity)
 
-  const { width, height } = useResizeObserver(ref)
+  const { width, height } = useResizeObserver(ref, deps)
 
   const cacheKey = useMemo(
     () =>

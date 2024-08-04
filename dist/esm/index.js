@@ -1,6 +1,6 @@
-export { tag } from "./tag.js";
-export { backgroundSquircle } from "./backgroundSquircle.js";
-export { clipSquircle } from "./clipSquircle.js";
-export { useBackgroundSquircle } from "./useBackgroundSquircle.js";
-export { useClipSquircle } from "./useClipSquircle.js";
+export { tag } from "./utils/tag.js";
+export { backgroundSquircle } from "./core/backgroundSquircle.js";
+export { clipSquircle } from "./core/clipSquircle.js";
+export { useBackgroundSquircle } from "./hooks/useBackgroundSquircle.js";
+export { useClipSquircle } from "./hooks/useClipSquircle.js";
 //# sourceMappingURL=index.js.map

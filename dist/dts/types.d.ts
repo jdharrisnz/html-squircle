@@ -1,3 +1,4 @@
+import type { RefObject } from "react";
 export declare namespace Types {
     type TagName = keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap;
     type Attributes = Readonly<Record<string, string | number | true | Readonly<Record<string, string>>>>;
@@ -116,5 +117,10 @@ export declare namespace Types {
         readonly injectedBody?: string | undefined;
     }
     type SquircleOptionsClip = Omit<SquircleOptionsSVG, "stroke" | "strokeWidth" | "background" | "injectedDefs" | "injectedBody">;
+    interface HookOptions<T extends Element> {
+        readonly ref: RefObject<T>;
+        readonly deps?: unknown[] | undefined;
+        readonly cacheCapacity?: number | undefined;
+    }
 }
 //# sourceMappingURL=types.d.ts.map

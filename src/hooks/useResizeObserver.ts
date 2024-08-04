@@ -8,23 +8,28 @@ interface Size {
 }
 
 /** @internal */
+const entryReducer = (
+  currentState: Size,
+  { target: { scrollWidth, scrollHeight } }: ResizeObserverEntry
+): Size => {
+  // Round pixels to avoid overly-frequent re-renders
+  const width = Math.round(scrollWidth)
+  const height = Math.round(scrollHeight)
+
+  // Don't update state if the result is the same
+  return width === currentState.width && height === currentState.height
+    ? currentState
+    : {
+        width,
+        height
+      }
+}
+
+/** @internal */
 const sizeReducer = (
   currentState: Size,
   entries: readonly ResizeObserverEntry[]
-): Size =>
-  entries.reduce<Size>((acc, { target: { scrollWidth, scrollHeight } }) => {
-    // Round pixels to avoid overly-frequent re-renders
-    const width = Math.round(scrollWidth)
-    const height = Math.round(scrollHeight)
-
-    // Don't update state if the result is the same
-    return width === acc.width && height === acc.height
-      ? acc
-      : {
-          width,
-          height
-        }
-  }, currentState)
+): Size => entries.reduce(entryReducer, currentState)
 
 /** @internal */
 const initialState: Size = {

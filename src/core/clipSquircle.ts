@@ -1,5 +1,5 @@
-import { Types } from "./types.js"
-import { getCurveSpec, getPath } from "./utils.js"
+import { Types } from "../types.js"
+import { getCurveSpec, getPath } from "../utils/utils.js"
 
 /** Produces a squircle path to be used in `background-clip` inline styles. */
 export const clipSquircle = ({

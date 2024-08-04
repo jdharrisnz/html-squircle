@@ -1,11 +1,11 @@
 import { useMemo } from "react"
 
-import { backgroundSquircle } from "./backgroundSquircle.js"
+import { backgroundSquircle } from "../core/backgroundSquircle.js"
+import { LRUCache, serializeBackgroundParams } from "../utils/utils.js"
 import { useResizeObserver } from "./useResizeObserver.js"
-import { LRUCache, serializeBackgroundParams } from "./utils.js"
 
 import type { RefObject } from "react"
-import type { Types } from "./types.js"
+import type { Types } from "../types.js"
 
 /** @internal */
 let cache: LRUCache<ReturnType<typeof backgroundSquircle>> | undefined

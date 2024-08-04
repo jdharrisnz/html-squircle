@@ -65,10 +65,12 @@ The default values for `curveLength` (calculated based on shortest side) and
 
 For React, `useClipSquircle` and `useBackgroundSquircle` are also exported.
 These accept the usual params, excluding `width` and `height`, since those are
-measured and kept in sync for you, and a `ref` for the element to be measured.
-For both, there's no need to ensure the input params have stable references. For
-improved performance, they also memoize the results across components for you
-automatically.
+measured and kept in sync for you. They also accept options including `ref` for
+the element to be measured, `deps` for anything that could cause the rendered
+element to be removed from or added to the DOM, and `cacheCapacity` for the size
+of the LRU cache. For both, there's no need to ensure the input params have
+stable references. For improved performance, they also memoize the results
+across components for you automatically.
 
 ## Tips
 

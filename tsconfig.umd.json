@@ -4,5 +4,6 @@
     "module": "UMD",
     "moduleResolution": "Node10",
     "outDir": "./dist/umd/"
-  }
+  },
+  "include": ["./src/index.ts"]
 }

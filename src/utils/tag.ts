@@ -1,13 +1,13 @@
 import { isObject } from "./isObject.js"
 
-import type { Types } from "../types.js"
+import type { ReadonlyRecord, Types } from "../types.js"
 
 const handleStringTuple = (input: readonly [string, string]): string =>
   input.join(":")
 
 const handleEntry = ([key, value]: readonly [
   string,
-  string | number | true | Readonly<Record<string, string>>,
+  string | number | true | ReadonlyRecord<string, string>,
 ]): string =>
   value === true ?
     ` ${key}`

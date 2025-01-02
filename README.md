@@ -21,8 +21,8 @@ minimal effort.
 - Customizable curve length, curve smoothness, background (solid color or
   gradient), stroke color, stroke width, and SVG injections to defs or body.
 - Easy to use with any web framework or vanilla JavaScript.
-- Exports a React component that will sync with the size of an element and
-  optionally cache results globally.
+- Exports a React component and hooks that will sync with the size of an element
+  and optionally cache results globally.
 
 ## Installation
 
@@ -34,33 +34,7 @@ npm install html-squircle
 
 ## Usage
 
-After installing `html-squircle`, you can import and use it in your project as
-follows:
-
-```ts
-import { backgroundSquircle, clipSquircle } from "html-squircle"
-
-import type { Types } from "html-squircle"
-
-const squircleSquare200: Types.SquircleOptionsBackground = {
-  width: 200,
-  height: 200,
-  stroke: "black",
-  strokeWidth: 2,
-  background: "#ff6347",
-}
-
-// Example usage for a clip path
-const clipPathStyle = clipSquircle(squircleSquare200)
-document.getElementById("yourElementId").style.clipPath = clipPathStyle
-
-// Example usage for a background with a solid color
-const backgroundStyle = backgroundSquircle(squircleSquare200)
-document.getElementById("anotherElementId").style.backgroundImage =
-  backgroundStyle
-```
-
-Or, in React:
+As a React component:
 
 ```tsx
 import * as React from "react"
@@ -88,14 +62,34 @@ function Example() {
 }
 ```
 
-For React, `Squircle` and `CacheProvider` are exported (requires React 19 due to
-the changes to `ref` props). `Squircle` is a polymorphic component, accepting
-`as` and `squircle` props, as well as all the other standard attributes.
+Or using the React hooks:
+
+```tsx
+import * as React from "react"
+import { useClipSquircle } from "html-squircle/react"
+import { Button } from "some-ui-library"
+
+function RoundedButton() {
+  const ref = React.useRef<Element | null>(null)
+  const clipStyle = useClipSquircle(ref)
+
+  return <Button style={clipStyle} />
+}
+```
+
+For React, `Squircle`, `CacheProvider`, `useClipSquircle`,
+`useBackgroundSquircle`, and `useSquircle` are exported.
+
+`Squircle` is a polymorphic component, accepting `as` and `squircle` props, as
+well as all the other standard attributes.
 
 - `as`: The name of an intrinsic element.
 - `squircle`: Options to pass to the underlying squircle-computation function,
   excluding `width` and `height`, since those are measured and kept in sync for
   you.
+
+The hooks simply return a style to be applied inline, and must be used to render
+elements **unconditionally** - or else their `ResizeObserver` will drop off.
 
 To memoize the results of squircle computation globally, wrap your app in the
 `CacheProvider` component. You may pass to this a `capacity` prop (default 20)
@@ -103,7 +97,7 @@ for the LRU cache used behind the scenes. If you don't use this, results will be
 memoized at the component level, and all the cache-related code should be
 tree-shaken at compile time.
 
-## Tips for function options
+## Tips for squircle function options
 
 The default values for `curveLength` (calculated based on shortest side) and
 `roundness` (0.2) will produce shapes exactly like Apple's app icons when the

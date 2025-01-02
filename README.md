@@ -60,6 +60,28 @@ document.getElementById("anotherElementId").style.backgroundImage =
   backgroundStyle
 ```
 
+Or, in React:
+
+```tsx
+import * as React from "react"
+import { Squircle } from "html-squircle/react"
+
+function Example() {
+  const ref = React.useRef<HTMLDivElement>(null)
+
+  return (
+    <Squircle
+      as="div"
+      props={{
+        ref,
+      }}
+    >
+      Hello, world!
+    </Squircle>
+  )
+}
+```
+
 The default values for `curveLength` (calculated based on shortest side) and
 `roundness` (0.2) will produce shapes exactly like Apple's app icons when the
 `width` and `height` are equal.

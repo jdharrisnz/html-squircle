@@ -32,6 +32,10 @@ export class LRUCache<T> {
     }
   }
 
+  public has(key: string): boolean {
+    return this.cache.has(key)
+  }
+
   public setCapacity(capacity: number | undefined): void {
     if (capacity !== undefined && capacity !== this.capacity) {
       this.capacity = Math.max(capacity, 1)

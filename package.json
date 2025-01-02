@@ -21,6 +21,20 @@
   "main": "dist/umd/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/dts/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/dts/index.d.ts",
+      "require": "./dist/umd/index.js",
+      "import": "./dist/esm/index.js",
+      "default": "./dist/umd/index.js"
+    },
+    "./react": {
+      "types": "./dist/dts/react/index.d.ts",
+      "require": "./dist/umd/react/index.js",
+      "import": "./dist/esm/react/index.js",
+      "default": "./dist/umd/react/index.js"
+    }
+  },
   "files": [
     "./dist"
   ],

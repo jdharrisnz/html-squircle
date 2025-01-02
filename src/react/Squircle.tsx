@@ -1,45 +1,9 @@
 import * as React from "react"
 
-import { eitherSquircleObj } from "../core/eitherSquircle.js"
 import { isFunction } from "../utils/isFunction.js"
-import { sortAndSerialize } from "../utils/sortAndSerialize.js"
-import { useCache } from "./CacheContext.js"
+import { useSquircle } from "./useSquircle.js"
 
 import type { GetAttributes, Types } from "../types.js"
-
-interface Size {
-  readonly width: number
-  readonly height: number
-}
-
-const resizeObserverEntryReducer = (
-  currentState: Size,
-  { target: { scrollWidth, scrollHeight } }: ResizeObserverEntry,
-): Size => {
-  const { width: currentWidth, height: currentHeight } = currentState
-
-  // Round pixels to avoid overly-frequent re-renders
-  const width = Math.round(scrollWidth)
-  const height = Math.round(scrollHeight)
-
-  // Don't update state if the result is the same
-  return width === currentWidth && height === currentHeight ?
-      currentState
-    : {
-        width,
-        height,
-      }
-}
-
-const resizeObserverSizeReducer = (
-  currentState: Size,
-  entries: readonly ResizeObserverEntry[],
-): Size => entries.reduce(resizeObserverEntryReducer, currentState)
-
-const initialResizeObserverState: Size = {
-  width: 0,
-  height: 0,
-}
 
 export declare namespace Squircle {
   type Props<T extends Types.TagName> = GetAttributes<T> & {
@@ -86,57 +50,7 @@ export const Squircle = <T extends Types.TagName>({
     }
   }
 
-  // State for observed element size
-  const [elementSize, resizeObserverCallback] = React.useReducer(
-    resizeObserverSizeReducer,
-    initialResizeObserverState,
-  )
-
-  // Set up a ResizeObserver for the element
-  React.useLayoutEffect(() => {
-    if (!refObject.current) {
-      return undefined
-    }
-
-    const observer = new ResizeObserver(resizeObserverCallback)
-
-    observer.observe(refObject.current)
-
-    return () => {
-      observer.disconnect()
-    }
-  }, [ref])
-
-  // Get the cache if provided
-  const cache = useCache()
-
-  // Memoize the squircle style result
-  const squircleStyle = React.useMemo(() => {
-    // Add observed element size to the size-less props
-    const config: Types.SquircleOptionsClip | Types.SquircleOptionsBackground =
-      {
-        ...squircle,
-        ...elementSize,
-      }
-
-    // If no cache provided, just compute result
-    if (!cache) {
-      return eitherSquircleObj(config)
-    }
-
-    // Compute cache key
-    const cacheKey = sortAndSerialize(config)
-
-    // Get from cache
-    const cached = cache.get(cacheKey) ?? eitherSquircleObj(config)
-
-    // Set in cache
-    if (!cache.has(cacheKey)) {
-      cache.set(cacheKey, cached)
-    }
-
-    return cached
-  }, [cache, elementSize, squircle])
+  const squircleStyle = useSquircle(refObject, squircle)
 
   return (
     // @ts-expect-error Too much complexity

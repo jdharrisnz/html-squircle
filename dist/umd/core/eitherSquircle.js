@@ -14,8 +14,13 @@
   exports.eitherSquircleObj = eitherSquircleObj;
   const backgroundSquircle_js_1 = require("./backgroundSquircle.js");
   const clipSquircle_js_1 = require("./clipSquircle.js");
-  const isOptionsSVG = opts => "stroke" in opts || "strokeWidth" in opts || "background" in opts || "injectedDefs" in opts || "injectedBody" in opts;
+  const isOptionsBackground = opts => "stroke" in opts || "strokeWidth" in opts || "background" in opts || "injectedDefs" in opts || "injectedBody" in opts;
+  /**
+   * Overloaded function for getting either the background or clip squircle
+   * objects. Returns a result based on whether any background options are present
+   * in the options object.
+   */
   function eitherSquircleObj(options) {
-    return isOptionsSVG(options) ? (0, backgroundSquircle_js_1.backgroundSquircleObj)(options) : (0, clipSquircle_js_1.clipSquircleObj)(options);
+    return isOptionsBackground(options) ? (0, backgroundSquircle_js_1.backgroundSquircleObj)(options) : (0, clipSquircle_js_1.clipSquircleObj)(options);
   }
 });

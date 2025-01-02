@@ -1,19 +1,21 @@
-import { Types } from "../types.js"
+import { isObject } from "./isObject.js"
 
-/** @internal */
+import type { Types } from "../types.js"
+
+const handleStringTuple = (input: readonly [string, string]): string =>
+  input.join(":")
+
 const handleEntry = ([key, value]: readonly [
   string,
-  string | number | true | Readonly<Record<string, string>>
+  string | number | true | Readonly<Record<string, string>>,
 ]): string =>
-  value === true
-    ? ` ${key}`
-    : ` ${key}='${
-        typeof value === "object"
-          ? Object.entries(value)
-              .map((e) => e.join(":"))
-              .join(";")
-          : value
-      }'`
+  value === true ?
+    ` ${key}`
+  : ` ${key}='${
+      isObject(value) ?
+        Object.entries(value).map(handleStringTuple).join(";")
+      : value
+    }'`
 
 /**
  * @param tagName A HTML or SVG element tag name.
@@ -23,10 +25,10 @@ const handleEntry = ([key, value]: readonly [
  *   and close.
  * @returns XML tag as string.
  */
-export const tag = <T extends Types.TagName, C extends Types.Children>(
-  tagName: T,
+export const tag = (
+  tagName: Types.TagName,
   attributes: Types.Attributes,
-  ...children: C
+  ...children: Types.Children
 ): string =>
   `<${tagName}${Object.entries(attributes)
     .map(handleEntry)

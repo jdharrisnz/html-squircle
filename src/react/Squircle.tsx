@@ -131,7 +131,9 @@ export const Squircle = <T extends Types.TagName>({
     const cached = cache.get(cacheKey) ?? eitherSquircleObj(config)
 
     // Set in cache
-    cache.set(cacheKey, cached)
+    if (!cache.has(cacheKey)) {
+      cache.set(cacheKey, cached)
+    }
 
     return cached
   }, [cache, elementSize, squircle])

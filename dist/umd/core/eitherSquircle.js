@@ -11,14 +11,10 @@
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  exports.eitherSquircle = eitherSquircle;
   exports.eitherSquircleObj = eitherSquircleObj;
   const backgroundSquircle_js_1 = require("./backgroundSquircle.js");
   const clipSquircle_js_1 = require("./clipSquircle.js");
   const isOptionsSVG = opts => "stroke" in opts || "strokeWidth" in opts || "background" in opts || "injectedDefs" in opts || "injectedBody" in opts;
-  function eitherSquircle(options) {
-    return isOptionsSVG(options) ? (0, backgroundSquircle_js_1.backgroundSquircle)(options) : (0, clipSquircle_js_1.clipSquircle)(options);
-  }
   function eitherSquircleObj(options) {
     return isOptionsSVG(options) ? (0, backgroundSquircle_js_1.backgroundSquircleObj)(options) : (0, clipSquircle_js_1.clipSquircleObj)(options);
   }

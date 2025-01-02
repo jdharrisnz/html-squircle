@@ -11,7 +11,7 @@
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  exports.tag = exports.eitherSquircleObj = exports.eitherSquircle = exports.clipSquircleObj = exports.clipSquircle = exports.backgroundSquircleObj = exports.backgroundSquircle = void 0;
+  exports.tag = exports.eitherSquircleObj = exports.clipSquircleObj = exports.clipSquircle = exports.backgroundSquircleObj = exports.backgroundSquircle = void 0;
   var backgroundSquircle_js_1 = require("./core/backgroundSquircle.js");
   Object.defineProperty(exports, "backgroundSquircle", {
     enumerable: true,
@@ -39,12 +39,6 @@
     }
   });
   var eitherSquircle_js_1 = require("./core/eitherSquircle.js");
-  Object.defineProperty(exports, "eitherSquircle", {
-    enumerable: true,
-    get: function () {
-      return eitherSquircle_js_1.eitherSquircle;
-    }
-  });
   Object.defineProperty(exports, "eitherSquircleObj", {
     enumerable: true,
     get: function () {

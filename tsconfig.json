@@ -14,10 +14,9 @@
     "target": "ESNext" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
     "lib": [
       "ESNext",
-      "DOM",
-      "DOM.Iterable"
+      "DOM"
     ] /* Specify a set of bundled library declaration files that describe the target runtime environment. */,
-    // "jsx": "preserve",                                /* Specify what JSX code is generated. */
+    "jsx": "react" /* Specify what JSX code is generated. */,
     // "experimentalDecorators": true,                   /* Enable experimental support for legacy experimental decorators. */
     // "emitDecoratorMetadata": true,                    /* Emit design-type metadata for decorated declarations in source files. */
     // "jsxFactory": "",                                 /* Specify the JSX factory function used when targeting React JSX emit, e.g. 'React.createElement' or 'h'. */
@@ -26,7 +25,7 @@
     // "reactNamespace": "",                             /* Specify the object invoked for 'createElement'. This only applies when targeting 'react' JSX emit. */
     // "noLib": true,                                    /* Disable including any library files, including the default lib.d.ts. */
     "useDefineForClassFields": true /* Emit ECMAScript-standard-compliant class fields. */,
-    "moduleDetection": "force" /* Control what method is used to detect module-format JS files. */,
+    "moduleDetection": "auto" /* Control what method is used to detect module-format JS files. */,
 
     /* Modules */
     "module": "NodeNext" /* Specify what module code is generated. */,

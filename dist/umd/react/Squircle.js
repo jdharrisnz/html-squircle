@@ -3,7 +3,7 @@
     var v = /*#__PURE__*/factory(require, exports);
     if (v !== undefined) module.exports = v;
   } else if (typeof define === "function" && define.amd) {
-    define(["require", "exports", "react", "../core/eitherSquircle.js", "../utils/sortAndSerialize.js", "./CacheContext.js"], factory);
+    define(["require", "exports", "react", "../core/eitherSquircle.js", "../utils/isFunction.js", "../utils/sortAndSerialize.js", "./CacheContext.js"], factory);
   }
 })(function (require, exports) {
   "use strict";
@@ -12,8 +12,9 @@
     value: true
   });
   exports.Squircle = void 0;
-  const react_1 = require("react");
+  const React = require("react");
   const eitherSquircle_js_1 = require("../core/eitherSquircle.js");
+  const isFunction_js_1 = require("../utils/isFunction.js");
   const sortAndSerialize_js_1 = require("../utils/sortAndSerialize.js");
   const CacheContext_js_1 = require("./CacheContext.js");
   const resizeObserverEntryReducer = (currentState, {
@@ -44,33 +45,42 @@
    * Polymorphic Squircle component for rendering a squircle where the size is
    * observed from the DOM element to which it is applied.
    *
-   * @param as The name of a primitive element, or a function component.
-   * @param props The props to pass to the component in the `as` parameter. Must
-   *   include a ref to apply to the element.
-   *
-   *   To render children, do it in the usual JSX way, not via the `children` key.
-   * @param squircle The options to pass to the squircle computation function. You
-   *   can prevent extra re-renders by passing a memoized value.
+   * @param as The name of a primitive element.
+   * @param squircle (optional) The options to pass to the squircle computation
+   *   function. You can prevent extra re-renders by passing a memoized value.
    */
   const Squircle = ({
-    as,
-    props: {
-      ref,
-      style,
-      ...restProps
-    },
+    as: Element,
+    ref,
     squircle,
-    children
+    style,
+    children,
+    ...restProps
   }) => {
+    // Create our own object-style ref so that we can observe the size
+    const refObject = React.useRef(null);
+    // Merge the (possibly-) provided ref and the above one
+    const mergedRef = instance => {
+      // Assign our object-style ref
+      refObject.current = instance;
+      // Run their callback-style ref and return its cleanup
+      if ((0, isFunction_js_1.isFunction)(ref)) {
+        return ref(instance);
+      }
+      // Assign their object-style ref
+      if (ref) {
+        ref.current = instance;
+      }
+    };
     // State for observed element size
-    const [elementSize, resizeObserverCallback] = (0, react_1.useReducer)(resizeObserverSizeReducer, initialResizeObserverState);
+    const [elementSize, resizeObserverCallback] = React.useReducer(resizeObserverSizeReducer, initialResizeObserverState);
     // Set up a ResizeObserver for the element
-    (0, react_1.useLayoutEffect)(() => {
-      if (!ref.current) {
+    React.useLayoutEffect(() => {
+      if (!refObject.current) {
         return undefined;
       }
       const observer = new ResizeObserver(resizeObserverCallback);
-      observer.observe(ref.current);
+      observer.observe(refObject.current);
       return () => {
         observer.disconnect();
       };
@@ -78,7 +88,7 @@
     // Get the cache if provided
     const cache = (0, CacheContext_js_1.useCache)();
     // Memoize the squircle style result
-    const squircleStyle = (0, react_1.useMemo)(() => {
+    const squircleStyle = React.useMemo(() => {
       // Add observed element size to the size-less props
       const config = {
         ...squircle,
@@ -96,14 +106,20 @@
       cache.set(cacheKey, cached);
       return cached;
     }, [cache, elementSize, squircle]);
-    return (0, react_1.createElement)(as, {
-      ref,
-      style: {
-        ...style,
-        ...squircleStyle
-      },
-      ...restProps
-    }, children);
+    return (
+      // @ts-expect-error Too much complexity
+      React.createElement(Element
+      // @ts-expect-error Too much complexity
+      , {
+        // @ts-expect-error Too much complexity
+        ref: mergedRef,
+        style: {
+          ...style,
+          ...squircleStyle
+        },
+        ...restProps
+      }, children)
+    );
   };
   exports.Squircle = Squircle;
 });

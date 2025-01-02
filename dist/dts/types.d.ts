@@ -1,6 +1,10 @@
-type ReadonlyRecord<K extends PropertyKey, V> = Readonly<Record<K, V>>;
+import type { HTMLAttributes, SVGAttributes } from "react";
+export type ReadonlyRecord<K extends PropertyKey, V> = Readonly<Record<K, V>>;
+export type GetAttributes<T extends Types.TagName> = T extends keyof HTMLElementTagNameMap ? HTMLAttributes<Types.TagNameMap[T]> : T extends keyof SVGElementTagNameMap ? SVGAttributes<Types.TagNameMap[T]> : never;
 export declare namespace Types {
     type TagName = keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap;
+    interface TagNameMap extends HTMLElementTagNameMap, Omit<SVGElementTagNameMap, "a" | "style" | "script" | "title"> {
+    }
     type Attributes = ReadonlyRecord<string, string | number | true | ReadonlyRecord<string, string>>;
     type Children = readonly string[];
     type GradientStop = {
@@ -123,5 +127,4 @@ export declare namespace Types {
     };
     type SquircleOptionsBackground = SquircleSize & SquircleOptionsBackgroundReact;
 }
-export {};
 //# sourceMappingURL=types.d.ts.map

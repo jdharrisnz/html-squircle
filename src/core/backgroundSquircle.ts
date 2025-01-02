@@ -1,6 +1,15 @@
-import { Types } from "../types.js"
+import { getCurveSpec } from "../utils/getCurveSpec.js"
+import { getPath } from "../utils/getPath.js"
+import { isObject } from "../utils/isObject.js"
 import { tag } from "../utils/tag.js"
-import { getCurveSpec, getPath } from "../utils/utils.js"
+
+import type { Types } from "../types.js"
+
+const handleStop = ({ offset, stopColor }: Types.GradientStop): string =>
+  tag("stop", {
+    offset,
+    "stop-color": stopColor,
+  })
 
 /** Produces a URI-encoded squircle SVG to be used in `background` inline styles. */
 export const backgroundSquircle = ({
@@ -12,13 +21,13 @@ export const backgroundSquircle = ({
   strokeWidth = 1,
   background = "#fff",
   injectedDefs = "",
-  injectedBody = ""
-}: Types.SquircleOptionsSVG): `url("data:image/svg+xml,${string}") left top no-repeat` => {
+  injectedBody = "",
+}: Types.SquircleOptionsBackground): `url("data:image/svg+xml,${string}") left top no-repeat` => {
   const [curveLengthShift, roundnessShift] = getCurveSpec(
     width,
     height,
     curveLength,
-    roundness
+    roundness,
   )
 
   const d = getPath(width, height, curveLengthShift, roundnessShift)
@@ -29,7 +38,7 @@ export const backgroundSquircle = ({
       {
         xmlns: "http://www.w3.org/2000/svg",
         width: `${width}px`,
-        height: `${height}px`
+        height: `${height}px`,
       },
       tag(
         "defs",
@@ -44,36 +53,38 @@ export const backgroundSquircle = ({
           tag("use", {
             href: `#path`,
             stroke: "#fff",
-            "stroke-width": `${strokeWidth * 2}px`
-          })
+            "stroke-width": `${strokeWidth * 2}px`,
+          }),
         ),
-        typeof background === "object"
-          ? tag(
-              "linearGradient",
-              {
-                id: "grad",
-                gradientTransform: `rotate(${background.gradientAngle ?? 0} 0.5 0.5)`
-              },
-              ...background.stops.map(({ offset, stopColor }) =>
-                tag("stop", {
-                  offset,
-                  "stop-color": stopColor
-                })
-              )
-            )
-          : background,
-        injectedDefs
+        isObject(background) ?
+          tag(
+            "linearGradient",
+            {
+              id: "grad",
+              gradientTransform: `rotate(${background.gradientAngle ?? 0} 0.5 0.5)`,
+            },
+            ...background.stops.map(handleStop),
+          )
+        : background,
+        injectedDefs,
       ),
       tag("use", {
         href: `#path`,
         "clip-path": `url(#clip)`,
-        fill: typeof background === "object" ? `url(#grad)` : background,
+        fill: isObject(background) ? `url(#grad)` : background,
         stroke,
-        "stroke-width": `${strokeWidth * 2}px`
+        "stroke-width": `${strokeWidth * 2}px`,
       }),
-      injectedBody
-    )
+      injectedBody,
+    ),
   )
 
   return `url("data:image/svg+xml,${svg}") left top no-repeat`
 }
+
+/** Same as {@link backgroundSquircle}, but wrapped in an object. */
+export const backgroundSquircleObj = (
+  options: Types.SquircleOptionsBackground,
+): { readonly background: ReturnType<typeof backgroundSquircle> } => ({
+  background: backgroundSquircle(options),
+})

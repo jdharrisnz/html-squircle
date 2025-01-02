@@ -66,15 +66,21 @@ Or, in React:
 import * as React from "react"
 import { Squircle } from "html-squircle/react"
 
-function Example() {
-  const ref = React.useRef<HTMLDivElement>(null)
+import type { Types } from "html-squircle"
 
+const squircleSquare200: Types.SquircleOptionsBackground = {
+  width: 200,
+  height: 200,
+  stroke: "black",
+  strokeWidth: 2,
+  background: "#ff6347",
+}
+
+function Example() {
   return (
     <Squircle
       as="div"
-      props={{
-        ref,
-      }}
+      squircle={squircleSquare200}
     >
       Hello, world!
     </Squircle>
@@ -82,27 +88,26 @@ function Example() {
 }
 ```
 
-The default values for `curveLength` (calculated based on shortest side) and
-`roundness` (0.2) will produce shapes exactly like Apple's app icons when the
-`width` and `height` are equal.
+For React, `Squircle` and `CacheProvider` are exported (requires React 19 due to
+the changes to `ref` props). `Squircle` is a polymorphic component, accepting
+`as` and `squircle` props, as well as all the other standard attributes.
 
-For React, `Squircle` and `CacheProvider` are also exported (requires React 19
-due to the changes to `ref` props). `Squircle` is a polymorphic component,
-accepting `as`, `props`, and `squircle` props.
-
-- `as`: The name of a primitive element, or a function component.
-- `props`: The props required by the above component, including a `ref`.
+- `as`: The name of an intrinsic element.
 - `squircle`: Options to pass to the underlying squircle-computation function,
   excluding `width` and `height`, since those are measured and kept in sync for
   you.
 
 To memoize the results of squircle computation globally, wrap your app in the
 `CacheProvider` component. You may pass to this a `capacity` prop (default 20)
-for the LRU cache used in the backend. If you don't use this, results will be
+for the LRU cache used behind the scenes. If you don't use this, results will be
 memoized at the component level, and all the cache-related code should be
 tree-shaken at compile time.
 
-## Tips for function options input
+## Tips for function options
+
+The default values for `curveLength` (calculated based on shortest side) and
+`roundness` (0.2) will produce shapes exactly like Apple's app icons when the
+`width` and `height` are equal.
 
 When trying to control the sharpness of the curve, first adjust the
 `curveLength` parameter. If you're not getting the result you want, then reach

@@ -1,4 +1,4 @@
-import { Types } from "../types.js";
+import type { Types } from "../types.js";
 /**
  * @param tagName A HTML or SVG element tag name.
  * @param attributes A `string`-keyed record of `string`, `number`, `true`, or
@@ -7,5 +7,5 @@ import { Types } from "../types.js";
  *   and close.
  * @returns XML tag as string.
  */
-export declare const tag: <T extends Types.TagName, C extends Types.Children>(tagName: T, attributes: Types.Attributes, ...children: C) => string;
+export declare const tag: (tagName: Types.TagName, attributes: Types.Attributes, ...children: Types.Children) => string;
 //# sourceMappingURL=tag.d.ts.map

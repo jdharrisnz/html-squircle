@@ -1,19 +1,21 @@
-import type { RefObject } from "react";
+type ReadonlyRecord<K extends PropertyKey, V> = Readonly<Record<K, V>>;
 export declare namespace Types {
     type TagName = keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap;
-    type Attributes = Readonly<Record<string, string | number | true | Readonly<Record<string, string>>>>;
+    type Attributes = ReadonlyRecord<string, string | number | true | ReadonlyRecord<string, string>>;
     type Children = readonly string[];
-    interface GradientStop {
+    type GradientStop = {
         /** Percentage number. */
         readonly offset: number;
         /** Color string. */
         readonly stopColor: string;
-    }
-    interface SquircleOptionsSVG {
+    };
+    type SquircleSize = {
         /** Width of the element the style will be applied to. */
         readonly width: number;
         /** Height of the element the style will be applied to. */
         readonly height: number;
+    };
+    type SquircleOptionsClipReact = {
         /**
          * Length of the curve in pixels.
          *
@@ -40,6 +42,9 @@ export declare namespace Types {
          * 0.2
          */
         readonly roundness?: number | undefined;
+    };
+    type SquircleOptionsClip = SquircleSize & SquircleOptionsClipReact;
+    type SquircleOptionsBackgroundReact = SquircleOptionsClipReact & {
         /**
          * Stroke color string.
          *
@@ -115,12 +120,8 @@ export declare namespace Types {
          * ""
          */
         readonly injectedBody?: string | undefined;
-    }
-    type SquircleOptionsClip = Omit<SquircleOptionsSVG, "stroke" | "strokeWidth" | "background" | "injectedDefs" | "injectedBody">;
-    interface HookOptions<T extends Element> {
-        readonly ref: RefObject<T>;
-        readonly deps?: unknown[] | undefined;
-        readonly cacheCapacity?: number | undefined;
-    }
+    };
+    type SquircleOptionsBackground = SquircleSize & SquircleOptionsBackgroundReact;
 }
+export {};
 //# sourceMappingURL=types.d.ts.map

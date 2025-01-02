@@ -21,8 +21,8 @@ minimal effort.
 - Customizable curve length, curve smoothness, background (solid color or
   gradient), stroke color, stroke width, and SVG injections to defs or body.
 - Easy to use with any web framework or vanilla JavaScript.
-- Exports React hooks that will cache results across components and sync with
-  the size of an element.
+- Exports a React component that will sync with the size of an element and
+  optionally cache results globally.
 
 ## Installation
 
@@ -38,15 +38,16 @@ After installing `html-squircle`, you can import and use it in your project as
 follows:
 
 ```ts
-import { clipSquircle, backgroundSquircle } from "html-squircle"
-import type { SquircleOptionsSVG } from "html-squircle"
+import { backgroundSquircle, clipSquircle } from "html-squircle"
 
-const squircleSquare200: SquircleOptionsSVG = {
+import type { Types } from "html-squircle"
+
+const squircleSquare200: Types.SquircleOptionsBackground = {
   width: 200,
   height: 200,
   stroke: "black",
   strokeWidth: 2,
-  background: "#ff6347"
+  background: "#ff6347",
 }
 
 // Example usage for a clip path
@@ -63,16 +64,23 @@ The default values for `curveLength` (calculated based on shortest side) and
 `roundness` (0.2) will produce shapes exactly like Apple's app icons when the
 `width` and `height` are equal.
 
-For React, `useClipSquircle` and `useBackgroundSquircle` are also exported.
-These accept the usual params, excluding `width` and `height`, since those are
-measured and kept in sync for you. They also accept options including `ref` for
-the element to be measured, `deps` for anything that could cause the rendered
-element to be removed from or added to the DOM, and `cacheCapacity` for the size
-of the LRU cache. For both, there's no need to ensure the input params have
-stable references. For improved performance, they also memoize the results
-across components for you automatically.
+For React, `Squircle` and `CacheProvider` are also exported (requires React 19
+due to the changes to `ref` props). `Squircle` is a polymorphic component,
+accepting `as`, `props`, and `squircle` props.
 
-## Tips
+- `as`: The name of a primitive element, or a function component.
+- `props`: The props required by the above component, including a `ref`.
+- `squircle`: Options to pass to the underlying squircle-computation function,
+  excluding `width` and `height`, since those are measured and kept in sync for
+  you.
+
+To memoize the results of squircle computation globally, wrap your app in the
+`CacheProvider` component. You may pass to this a `capacity` prop (default 20)
+for the LRU cache used in the backend. If you don't use this, results will be
+memoized at the component level, and all the cache-related code should be
+tree-shaken at compile time.
+
+## Tips for function options input
 
 When trying to control the sharpness of the curve, first adjust the
 `curveLength` parameter. If you're not getting the result you want, then reach
@@ -85,10 +93,10 @@ stroke to your background (regular CSS `border` will be clipped if you use
 Use the `injectedDefs` and `injectedBody` params if you need to do anything
 custom with the generated background SVG. This must be a `string`. You can refer
 to other elements of the SVG in `<use />` elements by referring to their ids:
-`#path`, `#rect`, `#clip`, `#mask`, `#grad`. To create xml tag structures
-easily, you can use the exported `tag` function. For maximum browser support and
-to align with the rest of the SVG result, always use single quotes. Your input
-will be URI-encoded for you, so don't do this yourself.
+`#path`, `#rect`, `#clip`, `#mask`, `#grad`. To create stringified xml tag
+structures easily, you can use the exported `tag` function. For maximum browser
+support and to align with the rest of the SVG result, always use single quotes
+in strings. Your input will be URI-encoded for you, so don't do this yourself.
 
 The values can be partly animated with CSS. The width and height will smoothly
 transition, but the curves will fade from one definition to the next.

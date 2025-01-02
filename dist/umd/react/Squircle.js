@@ -103,7 +103,9 @@
       // Get from cache
       const cached = cache.get(cacheKey) ?? (0, eitherSquircle_js_1.eitherSquircleObj)(config);
       // Set in cache
-      cache.set(cacheKey, cached);
+      if (!cache.has(cacheKey)) {
+        cache.set(cacheKey, cached);
+      }
       return cached;
     }, [cache, elementSize, squircle]);
     return (

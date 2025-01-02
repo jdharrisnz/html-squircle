@@ -37,6 +37,9 @@
         this.prune();
       }
     }
+    has(key) {
+      return this.cache.has(key);
+    }
     setCapacity(capacity) {
       if (capacity !== undefined && capacity !== this.capacity) {
         this.capacity = Math.max(capacity, 1);

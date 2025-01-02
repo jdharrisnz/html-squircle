@@ -1,12 +1,11 @@
-import { createElement, useLayoutEffect, useMemo, useReducer } from "react"
+import * as React from "react"
 
 import { eitherSquircleObj } from "../core/eitherSquircle.js"
+import { isFunction } from "../utils/isFunction.js"
 import { sortAndSerialize } from "../utils/sortAndSerialize.js"
 import { useCache } from "./CacheContext.js"
 
-import type { CSSProperties, HTMLAttributes, ReactNode, RefObject } from "react"
-
-import type { Types } from "../types.js"
+import type { GetAttributes, Types } from "../types.js"
 
 interface Size {
   readonly width: number
@@ -42,30 +41,13 @@ const initialResizeObserverState: Size = {
   height: 0,
 }
 
-type RequireProps<P, E extends Types.TagName = Types.TagName> = Omit<
-  P,
-  "ref" | "style"
-> & {
-  readonly ref: RefObject<
-    | (E extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[E]
-      : E extends keyof SVGElementTagNameMap ? SVGElementTagNameMap[E]
-      : Element)
-    | null
-  >
-  readonly style?: CSSProperties
-  readonly children?: never
-}
-
 export declare namespace Squircle {
-  interface Props<T extends Types.TagName | ((props: any) => ReactNode)> {
+  type Props<T extends Types.TagName> = GetAttributes<T> & {
     readonly as: T
-    readonly props: T extends Types.TagName ? RequireProps<HTMLAttributes<T>, T>
-    : T extends (props: infer P) => ReactNode ? RequireProps<P>
-    : undefined
+    readonly ref?: React.Ref<Types.TagNameMap[T]>
     readonly squircle?:
       | Types.SquircleOptionsClipReact
       | Types.SquircleOptionsBackgroundReact
-    readonly children?: ReactNode | undefined
   }
 }
 
@@ -73,37 +55,52 @@ export declare namespace Squircle {
  * Polymorphic Squircle component for rendering a squircle where the size is
  * observed from the DOM element to which it is applied.
  *
- * @param as The name of a primitive element, or a function component.
- * @param props The props to pass to the component in the `as` parameter. Must
- *   include a ref to apply to the element.
- *
- *   To render children, do it in the usual JSX way, not via the `children` key.
- * @param squircle The options to pass to the squircle computation function. You
- *   can prevent extra re-renders by passing a memoized value.
+ * @param as The name of a primitive element.
+ * @param squircle (optional) The options to pass to the squircle computation
+ *   function. You can prevent extra re-renders by passing a memoized value.
  */
-export const Squircle = <
-  T extends Types.TagName | ((props: any) => ReactNode),
->({
-  as,
-  props: { ref, style, ...restProps },
+export const Squircle = <T extends Types.TagName>({
+  as: Element,
+  ref,
   squircle,
+  style,
   children,
-}: Squircle.Props<T>): ReactNode => {
+  ...restProps
+}: Squircle.Props<T>): React.ReactNode => {
+  // Create our own object-style ref so that we can observe the size
+  const refObject = React.useRef<Types.TagNameMap[T]>(null)
+
+  // Merge the (possibly-) provided ref and the above one
+  const mergedRef: React.RefCallback<Types.TagNameMap[T]> = (instance) => {
+    // Assign our object-style ref
+    refObject.current = instance
+
+    // Run their callback-style ref and return its cleanup
+    if (isFunction(ref)) {
+      return ref(instance)
+    }
+
+    // Assign their object-style ref
+    if (ref) {
+      ref.current = instance
+    }
+  }
+
   // State for observed element size
-  const [elementSize, resizeObserverCallback] = useReducer(
+  const [elementSize, resizeObserverCallback] = React.useReducer(
     resizeObserverSizeReducer,
     initialResizeObserverState,
   )
 
   // Set up a ResizeObserver for the element
-  useLayoutEffect(() => {
-    if (!ref.current) {
+  React.useLayoutEffect(() => {
+    if (!refObject.current) {
       return undefined
     }
 
     const observer = new ResizeObserver(resizeObserverCallback)
 
-    observer.observe(ref.current)
+    observer.observe(refObject.current)
 
     return () => {
       observer.disconnect()
@@ -114,7 +111,7 @@ export const Squircle = <
   const cache = useCache()
 
   // Memoize the squircle style result
-  const squircleStyle = useMemo(() => {
+  const squircleStyle = React.useMemo(() => {
     // Add observed element size to the size-less props
     const config: Types.SquircleOptionsClip | Types.SquircleOptionsBackground =
       {
@@ -139,16 +136,18 @@ export const Squircle = <
     return cached
   }, [cache, elementSize, squircle])
 
-  return createElement(
-    as,
-    {
-      ref,
-      style: {
+  return (
+    // @ts-expect-error Too much complexity
+    <Element
+      // @ts-expect-error Too much complexity
+      ref={mergedRef}
+      style={{
         ...style,
         ...squircleStyle,
-      },
-      ...restProps,
-    },
-    children,
+      }}
+      {...restProps}
+    >
+      {children}
+    </Element>
   )
 }

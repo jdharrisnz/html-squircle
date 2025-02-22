@@ -1,6 +1,8 @@
 import type { HTMLAttributes, SVGAttributes } from "react"
 
-export type ReadonlyRecord<K extends PropertyKey, V> = Readonly<Record<K, V>>
+export type ReadonlyRecord<K extends PropertyKey, V> = {
+  readonly [x in K]: V
+}
 
 export type GetAttributes<T extends Types.TagName> =
   T extends keyof HTMLElementTagNameMap ? HTMLAttributes<Types.TagNameMap[T]>

@@ -7,7 +7,7 @@ import { useResizeObserver } from "./useResizeObserver.js"
 
 import type { RefObject } from "react"
 
-import type { Types } from "../types.js"
+import type { SquircleOptionsClip, SquircleOptionsClipReact } from "../types.js"
 
 /**
  * Pass a ref for the observed element and options for the squircle computation
@@ -20,7 +20,7 @@ import type { Types } from "../types.js"
  */
 export const useClipSquircle = (
   ref: RefObject<Element | null>,
-  options?: Types.SquircleOptionsClipReact,
+  options?: SquircleOptionsClipReact,
 ): ReturnType<typeof clipSquircleObj> => {
   // Observe the size
   const size = useResizeObserver(ref)
@@ -31,7 +31,7 @@ export const useClipSquircle = (
   // Memoize the result
   const clipSquircle = useMemo(() => {
     // Add observed size to the size-less props
-    const config: Types.SquircleOptionsClip = {
+    const config: SquircleOptionsClip = {
       ...options,
       ...size,
     }

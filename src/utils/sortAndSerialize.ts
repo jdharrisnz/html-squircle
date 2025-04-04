@@ -1,6 +1,7 @@
-import { pickOptions } from "./pickOptions.js"
+import { fillOptions } from "./fillOptions.js"
+import { isObject } from "./isObject.js"
 
-import type { Types } from "../types.js"
+import type { SquircleOptionsClip } from "../types.js"
 
 type Sortable =
   | string
@@ -22,9 +23,10 @@ const handleEntry = ([key, value]: readonly [string, Sortable]): string =>
   [key, sortAndSerializeOptions(value)].join(":")
 
 const sortAndSerializeOptions = (input: Sortable): string =>
-  typeof input === "object" ?
+  isObject(input) ?
     Object.entries(input).sort(sortEntryByKey).map(handleEntry).join(";")
   : `${input}`
 
-export const sortAndSerialize = (input: Types.SquircleOptionsClip): string =>
-  sortAndSerializeOptions(pickOptions(input))
+export const sortAndSerialize = (input: SquircleOptionsClip): string =>
+  // @ts-expect-error Interfaces don't have index signatures
+  sortAndSerializeOptions(fillOptions(input))

@@ -7,7 +7,10 @@ import { useResizeObserver } from "./useResizeObserver.js"
 
 import type { RefObject } from "react"
 
-import type { Types } from "../types.js"
+import type {
+  SquircleOptionsBackground,
+  SquircleOptionsBackgroundReact,
+} from "../types.js"
 
 /**
  * Pass a ref for the observed element and options for the squircle computation
@@ -20,8 +23,8 @@ import type { Types } from "../types.js"
  */
 export const useBackgroundSquircle = (
   ref: RefObject<Element | null>,
-  options?: Types.SquircleOptionsBackgroundReact,
-): ReturnType<typeof backgroundSquircleObj> => {
+  options?: SquircleOptionsBackgroundReact,
+): { background: `url("data:image/svg+xml,${string}") left top no-repeat` } => {
   // Observe the size
   const size = useResizeObserver(ref)
 
@@ -31,7 +34,7 @@ export const useBackgroundSquircle = (
   // Memoize the result
   const backgroundSquircle = useMemo(() => {
     // Add observed size to the size-less props
-    const config: Types.SquircleOptionsBackground = {
+    const config: SquircleOptionsBackground = {
       ...options,
       ...size,
     }

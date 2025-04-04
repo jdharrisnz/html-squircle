@@ -7,9 +7,11 @@ import { useResizeObserver } from "./useResizeObserver.js"
 
 import type { RefObject } from "react"
 
-import type { backgroundSquircleObj } from "../core/backgroundSquircle.js"
-import type { clipSquircleObj } from "../core/clipSquircle.js"
-import type { Types } from "../types.js"
+import type {
+  SquircleOptionsBackground,
+  SquircleOptionsBackgroundReact,
+  SquircleOptionsClipReact,
+} from "../types.js"
 
 /**
  * Pass a ref for the observed element and options for the squircle computation
@@ -22,8 +24,8 @@ import type { Types } from "../types.js"
  */
 export function useSquircle(
   ref: RefObject<Element | null>,
-  options?: Types.SquircleOptionsClipReact,
-): ReturnType<typeof clipSquircleObj>
+  options?: SquircleOptionsClipReact,
+): { clipPath: `path('${string}')` }
 /**
  * Pass a ref for the observed element and options for the squircle computation
  * function. The returned type will depend on the options used.
@@ -35,8 +37,8 @@ export function useSquircle(
  */
 export function useSquircle(
   ref: RefObject<Element | null>,
-  options?: Types.SquircleOptionsBackgroundReact,
-): ReturnType<typeof backgroundSquircleObj>
+  options?: SquircleOptionsBackgroundReact,
+): { background: `url("data:image/svg+xml,${string}") left top no-repeat` }
 /**
  * Pass a ref for the observed element and options for the squircle computation
  * function. The returned type will depend on the options used.
@@ -48,12 +50,10 @@ export function useSquircle(
  */
 export function useSquircle(
   ref: RefObject<Element | null>,
-  options?:
-    | Types.SquircleOptionsClipReact
-    | Types.SquircleOptionsBackgroundReact,
+  options?: SquircleOptionsClipReact | SquircleOptionsBackgroundReact,
 ):
-  | ReturnType<typeof clipSquircleObj>
-  | ReturnType<typeof backgroundSquircleObj> {
+  | { clipPath: `path('${string}')` }
+  | { background: `url("data:image/svg+xml,${string}") left top no-repeat` } {
   // Observe the size
   const size = useResizeObserver(ref)
 
@@ -63,7 +63,7 @@ export function useSquircle(
   // Memoize the result
   const squircle = useMemo(() => {
     // Add observed size to the size-less props
-    const config: Types.SquircleOptionsBackground = {
+    const config: SquircleOptionsBackground = {
       ...options,
       ...size,
     }

@@ -3,9 +3,9 @@ import { getPath } from "../utils/getPath.js"
 import { isObject } from "../utils/isObject.js"
 import { tag } from "../utils/tag.js"
 
-import type { Types } from "../types.js"
+import type { GradientStop, SquircleOptionsBackground } from "../types.js"
 
-const handleStop = ({ offset, stopColor }: Types.GradientStop): string =>
+const handleStop = ({ offset, stopColor }: GradientStop): string =>
   tag("stop", {
     offset,
     "stop-color": stopColor,
@@ -22,7 +22,7 @@ export const backgroundSquircle = ({
   background = "#fff",
   injectedDefs = "",
   injectedBody = "",
-}: Types.SquircleOptionsBackground): `url("data:image/svg+xml,${string}") left top no-repeat` => {
+}: SquircleOptionsBackground) => {
   const [curveLengthShift, roundnessShift] = getCurveSpec(
     width,
     height,
@@ -79,12 +79,10 @@ export const backgroundSquircle = ({
     ),
   )
 
-  return `url("data:image/svg+xml,${svg}") left top no-repeat`
+  return `url("data:image/svg+xml,${svg}") left top no-repeat` as const
 }
 
 /** Same as {@link backgroundSquircle}, but wrapped in an object. */
-export const backgroundSquircleObj = (
-  options: Types.SquircleOptionsBackground,
-): { readonly background: ReturnType<typeof backgroundSquircle> } => ({
+export const backgroundSquircleObj = (options: SquircleOptionsBackground) => ({
   background: backgroundSquircle(options),
 })

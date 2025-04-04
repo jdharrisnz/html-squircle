@@ -20,10 +20,7 @@ const resizeObserverEntryReducer = (
   // Don't update state if the result is the same
   return width === currentWidth && height === currentHeight ?
       currentState
-    : {
-        width,
-        height,
-      }
+    : { width, height }
 }
 
 const resizeObserverReducer = (

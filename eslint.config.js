@@ -52,6 +52,7 @@ export default tseslint.config(
         sourceType: "module",
       },
       rules: {
+        "@typescript-eslint/consistent-type-definitions": "error",
         /** Stylistic. */
         "@typescript-eslint/member-ordering": "warn",
         /** A valid and useful type in some cases. */

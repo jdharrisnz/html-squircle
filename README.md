@@ -40,9 +40,9 @@ As a React component:
 import * as React from "react"
 import { Squircle } from "html-squircle/react"
 
-import type { Types } from "html-squircle"
+import type { SquircleOptionsBackground } from "html-squircle"
 
-const squircleSquare200: Types.SquircleOptionsBackground = {
+const squircleSquare200: SquircleOptionsBackground = {
   width: 200,
   height: 200,
   stroke: "black",

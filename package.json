@@ -35,15 +35,13 @@
   },
   "main": "dist/umd/index.js",
   "module": "dist/esm/index.js",
-  "types": "dist/dts/index.d.ts",
   "files": [
     "dist/",
     "src/"
   ],
   "scripts": {
-    "build": "npm run clean && npm run build-esm && npm run build-umd && npm run build-dts && npm run build-annotate",
+    "build": "pnpm clean && pnpm build-esm && pnpm build-umd && pnpm build-annotate",
     "build-annotate": "babel dist --plugins annotate-pure-calls --out-dir dist",
-    "build-dts": "tsc -p tsconfig.dts.json",
     "build-esm": "tsc -p tsconfig.esm.json ",
     "build-umd": "tsc -p tsconfig.umd.json",
     "clean": "rimraf --glob ./dist/*",

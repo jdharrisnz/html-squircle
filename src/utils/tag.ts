@@ -1,6 +1,8 @@
 import { isObject } from "./isObject.js"
 
-import type { ReadonlyRecord, Types } from "../types.js"
+import type { JSX } from "react"
+
+import type { ReadonlyRecord } from "../types.js"
 
 const handleStringTuple = (input: readonly [string, string]): string =>
   input.join(":")
@@ -26,9 +28,12 @@ const handleEntry = ([key, value]: readonly [
  * @returns XML tag as string.
  */
 export const tag = (
-  tagName: Types.TagName,
-  attributes: Types.Attributes,
-  ...children: Types.Children
+  tagName: keyof JSX.IntrinsicElements,
+  attributes: ReadonlyRecord<
+    string,
+    string | number | true | ReadonlyRecord<string, string>
+  >,
+  ...children: ReadonlyArray<string>
 ): string =>
   `<${tagName}${Object.entries(attributes)
     .map(handleEntry)

@@ -49,6 +49,7 @@ export class LRUCache<T> {
     // Oldest keys are first in the list
     for (const [key] of this.cache) {
       this.cache.delete(key)
+      // Only loop once
       return
     }
   }

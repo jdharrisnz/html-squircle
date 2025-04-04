@@ -2,11 +2,13 @@
 
 import pluginJs from "@eslint/js"
 import stylisticJsx from "@stylistic/eslint-plugin-jsx"
+import * as tsResolver from "eslint-import-resolver-typescript"
+import * as pluginImport from "eslint-plugin-import-x"
 import pluginReact from "eslint-plugin-react"
-import pluginReactCompiler from "eslint-plugin-react-compiler"
-import pluginReactHooks from "eslint-plugin-react-hooks"
+import * as pluginReactCompiler from "eslint-plugin-react-compiler"
+import * as pluginReactHooks from "eslint-plugin-react-hooks"
 import globals from "globals"
-import tseslint from "typescript-eslint"
+import * as tseslint from "typescript-eslint"
 
 export default tseslint.config(
   // Project
@@ -21,6 +23,39 @@ export default tseslint.config(
       },
     },
   ],
+  // Import
+  pluginImport.flatConfigs.recommended,
+  pluginImport.flatConfigs.typescript,
+  {
+    settings: {
+      "import-x/resolver": {
+        name: "tsResolver",
+        resolver: tsResolver,
+        options: {
+          alwaysTryTypes: true,
+        },
+      },
+    },
+    rules: {
+      "import-x/consistent-type-specifier-style": ["warn", "prefer-top-level"],
+      // For now, doesn't play nice with barrel files
+      "import-x/export": "off",
+      "import-x/first": "warn",
+      "import-x/no-amd": "error",
+      "import-x/no-commonjs": "error",
+      "import-x/no-cycle": "error",
+      "import-x/no-deprecated": "error",
+      "import-x/no-extraneous-dependencies": "warn",
+      "import-x/no-import-module-exports": "error",
+      "import-x/no-mutable-exports": "error",
+      "import-x/no-relative-packages": "error",
+      "import-x/no-self-import": "error",
+      "import-x/no-unassigned-import": "error",
+      "import-x/no-unused-modules": "warn",
+      "import-x/no-useless-path-segments": "warn",
+      "import-x/unambiguous": "warn",
+    },
+  },
   // JS
   [
     pluginJs.configs.recommended,

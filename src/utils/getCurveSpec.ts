@@ -1,7 +1,6 @@
 import { clamp } from "./clamp.js"
 
 /** Get the pixels shifts for curve length and roundness. */
-
 export const getCurveSpec = (
   width: number,
   height: number,

@@ -21,13 +21,11 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/dts/index.d.ts",
       "require": "./dist/umd/index.js",
       "import": "./dist/esm/index.js",
       "default": "./dist/umd/index.js"
     },
     "./react": {
-      "types": "./dist/dts/react/index.d.ts",
       "require": "./dist/umd/react/index.js",
       "import": "./dist/esm/react/index.js",
       "default": "./dist/umd/react/index.js"
